@@ -161,7 +161,7 @@ export const SongModal = (props: TSongModalProps) => {
           <Grid item xs={12} md={2}>
             <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
           </Grid>
-          <Grid item xs={12} md={9} className={classes.musicInfo}>
+          <Grid item xs={12} md={9.5} className={classes.musicInfo}>
             <Typography variant="h5" gutterBottom>
               {musicDetails.name}
             </Typography>
@@ -200,7 +200,7 @@ export const SongModal = (props: TSongModalProps) => {
             </Box>
           </Grid>
 
-          <Grid item xs={12} md={1} className={classes.musicInfo}>
+          <Grid item xs={12} md={0.5} className={classes.musicInfo}>
             <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
               <CloseIcon />
             </IconButton>
