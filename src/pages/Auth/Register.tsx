@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import { makeStyles } from '@mui/styles';
+import logo from '@/assets/imgs/logo.png';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -118,128 +119,133 @@ export const Register = () => {
   };
 
   return (
-    <Container className={classes.container}>
-      <Paper className={classes.paper}>
-        <Typography variant="h6" gutterBottom>
-          Registro
-        </Typography>
-        <Stepper activeStep={activeStep} className={classes.stepper}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        <Box className={classes.form}>
-          {activeStep === 0 && (
-            <>
-              <Controller
-                name="email"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className={classes.input}
-                    label="E-mail"
-                    variant="outlined"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                    required
-                  />
-                )}
-              />
-              <Controller
-                name="password"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className={classes.input}
-                    label="Senha"
-                    type="password"
-                    variant="outlined"
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                    required
-                  />
-                )}
-              />
-            </>
-          )}
-          {activeStep === 1 && (
-            <>
-              <Controller
-                name="nickname"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className={classes.input}
-                    label="Nickname"
-                    variant="outlined"
-                    error={!!errors.nickname}
-                    helperText={errors.nickname?.message}
-                    required
-                  />
-                )}
-              />
-              <Controller
-                name="birthday"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className={classes.input}
-                    label="Data de Aniversário"
-                    type="date"
-                    variant="outlined"
-                    error={!!errors.birthday}
-                    helperText={errors.birthday?.message}
-                    required
-                  />
-                )}
-              />
-            </>
-          )}
-          {activeStep === 2 && (
-            <>
-              <Controller
-                name="musicGenres"
-                control={control}
-                defaultValue={[]}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    id="userRoles"
-                    variant="outlined"
-                    label="Selecione seu gênero favorito"
-                    SelectProps={{
-                      multiple: true,
-                    }}
-                  >
-                    <MenuItem value="admin">Pop</MenuItem>
-                    <MenuItem value="user1">Rock</MenuItem>
-                    <MenuItem value="user2">Sertanejo</MenuItem>
-                  </TextField>
-                )}
-              />
-            </>
-          )}
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            className={classes.button}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {activeStep === steps.length - 1 ? 'Registrar' : 'Próximo'}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <img src={logo} alt="Logo" width={350} height={100} />
+      </Box>
+      <Container className={classes.container}>
+        <Paper className={classes.paper}>
+          <Typography variant="h6" gutterBottom>
+            Registro
+          </Typography>
+          <Stepper activeStep={activeStep} className={classes.stepper}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <Box className={classes.form}>
+            {activeStep === 0 && (
+              <>
+                <Controller
+                  name="email"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className={classes.input}
+                      label="E-mail"
+                      variant="outlined"
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
+                      required
+                    />
+                  )}
+                />
+                <Controller
+                  name="password"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className={classes.input}
+                      label="Senha"
+                      type="password"
+                      variant="outlined"
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      required
+                    />
+                  )}
+                />
+              </>
+            )}
+            {activeStep === 1 && (
+              <>
+                <Controller
+                  name="nickname"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className={classes.input}
+                      label="Nickname"
+                      variant="outlined"
+                      error={!!errors.nickname}
+                      helperText={errors.nickname?.message}
+                      required
+                    />
+                  )}
+                />
+                <Controller
+                  name="birthday"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className={classes.input}
+                      label="Data de Aniversário"
+                      type="date"
+                      variant="outlined"
+                      error={!!errors.birthday}
+                      helperText={errors.birthday?.message}
+                      required
+                    />
+                  )}
+                />
+              </>
+            )}
+            {activeStep === 2 && (
+              <>
+                <Controller
+                  name="musicGenres"
+                  control={control}
+                  defaultValue={[]}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      id="userRoles"
+                      variant="outlined"
+                      label="Selecione seu gênero favorito"
+                      SelectProps={{
+                        multiple: true,
+                      }}
+                    >
+                      <MenuItem value="admin">Pop</MenuItem>
+                      <MenuItem value="user1">Rock</MenuItem>
+                      <MenuItem value="user2">Sertanejo</MenuItem>
+                    </TextField>
+                  )}
+                />
+              </>
+            )}
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              className={classes.button}
+              onClick={handleSubmit(onSubmit)}
+            >
+              {activeStep === steps.length - 1 ? 'Registrar' : 'Próximo'}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
