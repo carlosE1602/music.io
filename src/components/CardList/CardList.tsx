@@ -55,10 +55,11 @@ type TCardListProps = {
   isLoading: boolean;
   cards: TCard[];
   actions: Actions[];
+  onCardClick: (card: TCard) => void;
 };
 
 export const CardList = (props: TCardListProps) => {
-  const { title, isLoading, cards, actions } = props;
+  const { title, isLoading, cards, actions, onCardClick } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [clickedCard, setClickedCard] = useState<TCard>();
 
@@ -91,7 +92,7 @@ export const CardList = (props: TCardListProps) => {
             {cards.map((card: TCard) => {
               return (
                 <Grid item key={card.id}>
-                  <Card className={classes.card}>
+                  <Card className={classes.card} onClick={(e) => onCardClick(card)}>
                     <CardMedia className={classes.media} image={card.imgUrl} title={card.title} />
                     <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -100,7 +101,13 @@ export const CardList = (props: TCardListProps) => {
                           {card.label}
                         </Typography>
                       </Box>
-                      <IconButton sx={{ padding: '0px' }} onClick={(e) => handleMenuClick(e, card)}>
+                      <IconButton
+                        sx={{ padding: '0px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMenuClick(e, card);
+                        }}
+                      >
                         <MoreVertIcon htmlColor="#FFF" />
                       </IconButton>
                     </CardContent>

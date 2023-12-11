@@ -4,7 +4,8 @@ import { Box } from '@mui/material';
 
 import AddToPlaylistIcon from '@mui/icons-material/PlaylistAdd';
 import DetailsIcon from '@mui/icons-material/Info';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { SongModal } from '@/components/SongModal';
 
 const songs: TCard[] = [
   {
@@ -59,6 +60,8 @@ const songs: TCard[] = [
 ];
 
 export const Songs = () => {
+  const [selectedSong, setSelectedSong] = useState<TCard | null>();
+
   const SongActions: Actions[] = useMemo(
     () => [
       {
@@ -69,22 +72,32 @@ export const Songs = () => {
       {
         label: 'Ver mais detalhes',
         icon: <DetailsIcon sx={{ marginRight: 1 }} />,
-        onClick: (id) => console.log(id),
+        onClick: (id) => {
+          const selectedSongById = songs.find((elem) => elem.id == id);
+          setSelectedSong(selectedSongById);
+        },
       },
     ],
-    [],
+    [songs],
   );
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header />
-
+      <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
       <Box
         sx={{
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 64px)',
         }}
       >
-        <CardList isLoading={false} title="Músicas recomendadas" cards={songs} actions={SongActions} />
+        <CardList
+          isLoading={false}
+          title="Músicas recomendadas"
+          cards={songs}
+          actions={SongActions}
+          onCardClick={(card: TCard) => setSelectedSong(card)}
+        />
       </Box>
     </Box>
   );
