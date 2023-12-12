@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
 import { Songs } from '@/pages/Songs';
+import { Playlists } from '@/pages/Playlists';
+import { PlaylistDetail } from '@/pages/PlaylistDetail';
 
 const Routing = () => {
   return (
@@ -10,6 +12,8 @@ const Routing = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/home" element={<Songs />} />
+      <Route path="/playlists" element={<Playlists />} />
+      <Route path="/playlists/detail/:id" element={<PlaylistDetail />} />
     </Routes>
   );
 };

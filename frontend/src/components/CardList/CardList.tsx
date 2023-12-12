@@ -80,7 +80,7 @@ export const CardList = (props: TCardListProps) => {
       <Typography variant="h4" className={classes.title}>
         {!isLoading && cards.length === 0 ? 'Não há resultados para sua busca...' : title}
       </Typography>
-      <Grid container spacing={2} justifyContent="center">
+      <Grid container spacing={2} justifyContent="center" maxWidth="1366px" margin="0 auto">
         {isLoading &&
           [1, 2, 3, 4, 5].map((id) => (
             <Grid item key={`load-${id}`}>
@@ -137,7 +137,7 @@ export const CardList = (props: TCardListProps) => {
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
           <Button variant="contained" color="primary" onClick={() => console.log('eueu')}>
             <Typography variant="Body1SemiBold" color="#FFF">
-              Carregar Mais Músicas
+              Carregar Mais
             </Typography>
           </Button>
         </Box>

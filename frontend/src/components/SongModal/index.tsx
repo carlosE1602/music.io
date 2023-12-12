@@ -17,6 +17,7 @@ import AddToPlaylistIcon from '@mui/icons-material/PlaylistAdd';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import { CommentsSection } from '../CommentsSection';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -63,7 +64,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
 }));
 
-type TComment = {
+export type TComment = {
   text: string;
   date: string;
   user: {
@@ -154,7 +155,8 @@ export const SongModal = (props: TSongModalProps) => {
           borderRadius: '10px',
           textAlign: 'justify',
           minWidth: '900px',
-          overflow: 'hidden',
+          maxWidth: '900px',
+          // overflow: 'hidden',
         }}
       >
         <Grid container spacing={2}>
@@ -207,8 +209,8 @@ export const SongModal = (props: TSongModalProps) => {
           </Grid>
 
           {/* Comentários (abaixo) */}
-          <Grid item xs={12} overflow="auto">
-            <div className={classes.commentsSection}>
+          <Grid item xs={12}>
+            {/* <div className={classes.commentsSection}>
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Typography variant="h6">Comentários</Typography>
                 <Box
@@ -307,7 +309,18 @@ export const SongModal = (props: TSongModalProps) => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
+            <CommentsSection
+              // classes={classes}
+              handleFilterMenuOpen={handleFilterMenuOpen}
+              handleFilterMenuClose={handleFilterMenuClose}
+              filterMenuAnchor={filterMenuAnchor}
+              selectedFilter={selectedFilter}
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              isLoadingComments={isLoadingComments}
+              musicDetails={musicDetails}
+            />
           </Grid>
         </Grid>
       </DialogContent>
