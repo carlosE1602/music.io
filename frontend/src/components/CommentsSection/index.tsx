@@ -39,7 +39,6 @@ const useStyles = makeStyles((theme: any) => ({
   inputComment: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-
     display: 'flex',
     alignItems: 'center',
     gap: '4px',

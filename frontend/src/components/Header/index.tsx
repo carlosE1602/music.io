@@ -3,6 +3,7 @@ import React from 'react';
 import { AppBar, Toolbar, IconButton, Typography, InputBase, Avatar, Menu, MenuItem, Box } from '@mui/material';
 import { Search as SearchIcon, AccountCircle as AccountCircleIcon, MusicNote, QueueMusic } from '@mui/icons-material';
 import debounce from 'lodash/debounce';
+import CreatePlaylistModal from '../CreatePlaylistModal';
 
 // Componente principal
 function Header() {
@@ -10,6 +11,11 @@ function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  const [playlistMenuAnchorEl, setPlaylistMenuAnchorEl] = React.useState(null);
+  const [creationModal, setCreationModal] = React.useState<boolean>(false);
+  const handlePlaylistMenu = (event: any) => setPlaylistMenuAnchorEl(event.currentTarget);
+  const closePlaylistMenu = () => setPlaylistMenuAnchorEl(null);
 
   // Função para deslogar o usuário (substitua pelo seu próprio método)
   const handleLogout = () => {
@@ -29,6 +35,13 @@ function Header() {
 
   return (
     <AppBar position="static" sx={{ display: 'flex', gap: '24px' }}>
+      <CreatePlaylistModal
+        isOpen={creationModal}
+        onClose={() => setCreationModal(false)}
+        onSubmit={(props: { name: string; description: string }) => {
+          console.log(props);
+        }}
+      />
       <Toolbar>
         <Box sx={{ display: 'flex', gap: '24px' }}>
           <Typography variant="CTA2" color="#FFF" sx={{ cursor: 'pointer' }} onClick={() => location.assign('/home')}>
@@ -38,10 +51,28 @@ function Header() {
             variant="CTA2"
             color="#FFF"
             sx={{ cursor: 'pointer' }}
-            onClick={() => location.assign('/playlists')}
+            onClick={handlePlaylistMenu} // Abrir o menu de playlists ao clicar
           >
             Playlists
           </Typography>
+          {/* Menu de playlists */}
+          <Menu
+            anchorEl={playlistMenuAnchorEl}
+            open={Boolean(playlistMenuAnchorEl)}
+            onClose={closePlaylistMenu}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <MenuItem
+              onClick={() => {
+                closePlaylistMenu();
+                setCreationModal(true);
+              }}
+            >
+              Criar Nova Playlist
+            </MenuItem>
+            <MenuItem onClick={() => location.assign('/playlists')}>Ir para Playlists</MenuItem>
+          </Menu>
         </Box>
 
         <div style={{ flexGrow: 1, padding: '0px 24px' }}>

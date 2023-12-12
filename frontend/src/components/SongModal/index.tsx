@@ -154,8 +154,8 @@ export const SongModal = (props: TSongModalProps) => {
           padding: '20px',
           borderRadius: '10px',
           textAlign: 'justify',
-          minWidth: '900px',
-          maxWidth: '900px',
+          // minWidth: '900px',
+          maxWidth: '800px',
           // overflow: 'hidden',
         }}
       >
