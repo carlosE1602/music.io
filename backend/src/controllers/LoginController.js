@@ -23,6 +23,10 @@ module.exports = {
 				.status(406)
 				.json({ error: "Email ou senha incorretos" });
 		}
-		return response.json(confirm);
+		return response.json({
+			id: confirm.id,
+			email: confirm.email,
+			nickname: confirm.nickname,
+		});
 	},
 };
