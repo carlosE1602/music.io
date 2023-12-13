@@ -44,7 +44,7 @@ function Header() {
       />
       <Toolbar>
         <Box sx={{ display: 'flex', gap: '24px' }}>
-          <Typography variant="CTA2" color="#FFF" sx={{ cursor: 'pointer' }} onClick={() => location.assign('/home')}>
+          <Typography variant="CTA2" color="#FFF" sx={{ cursor: 'pointer' }} onClick={() => location.assign('/')}>
             Músicas
           </Typography>
           <Typography

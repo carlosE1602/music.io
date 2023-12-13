@@ -1,11 +1,13 @@
-import React from 'react';
-import { Container, Paper, Typography, Button, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, Paper, Typography, Button, Box, CircularProgress } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from '@mui/styles';
 import logo from '@/assets/imgs/logo.png';
+import { AuthService } from '@/services/AuthService';
+import axios from 'axios';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -58,14 +60,26 @@ export const Login = () => {
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = (data: { username: string; password: string }) => {
-    console.log('Dados do formulário:', data);
-    // location.assign("/");
-    // Adicione lógica de login aqui
+  const onSubmit = async () => {
+    const data = getValues();
+    setIsLoading(true);
+    try {
+      const response = await AuthService.login(data.password, data.username);
+      location.assign('/');
+      setErrorMessage(null);
+    } catch (err) {
+      if (axios.isAxiosError(err)) setErrorMessage(err?.response?.data?.error);
+      else setErrorMessage('Erro ao fazer login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -116,11 +130,18 @@ export const Login = () => {
               variant="contained"
               color="primary"
               type="submit"
+              disabled={isLoading}
               className={classes.button}
               onClick={handleSubmit(onSubmit)}
             >
-              Login
+              {isLoading ? <CircularProgress size="25px" /> : 'Login'}
             </Button>
+
+            {!!errorMessage && (
+              <Typography variant="caption" color="red">
+                * {errorMessage}
+              </Typography>
+            )}
             <Typography
               sx={{ cursor: 'pointer' }}
               onClick={() => location.assign(`/register`)}
