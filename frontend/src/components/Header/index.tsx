@@ -106,7 +106,7 @@ function Header() {
         </div>
 
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenu}>
-          <Avatar>{userData?.username.charAt(0)}</Avatar>
+          <Avatar>{userData?.username?.charAt(0)}</Avatar>
           <Typography variant="CTA2">{userData?.username}</Typography>
         </Box>
         <Menu

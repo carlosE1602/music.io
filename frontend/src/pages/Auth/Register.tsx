@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Paper, Typography, Button, Box, Stepper, Step, StepLabel } from '@mui/material';
+import { Container, Paper, Typography, Button, Box, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
 
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -8,6 +8,9 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import { makeStyles } from '@mui/styles';
 import logo from '@/assets/imgs/logo.png';
+import axios from 'axios';
+import { AuthService } from '@/services/AuthService';
+import Store from '@/store';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -57,6 +60,8 @@ const steps = ['Acesso', 'Informações', 'Preferências'];
 export const Register = () => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false);
+  const [messageError, setMessageError] = useState<string | null>(null);
 
   const validationSchema = yup.object({
     email:
@@ -67,7 +72,10 @@ export const Register = () => {
             .email('E-mail inválido')
             .matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, 'Insira um email válido.')
         : yup.string(),
-    password: activeStep === 0 ? yup.string().required('Senha é obrigatória') : yup.string(),
+    password:
+      activeStep === 0
+        ? yup.string().min(7, 'A senha dever ter no mínimo 7 caracters').required('Senha é obrigatória')
+        : yup.string(),
     nickname: activeStep === 1 ? yup.string().required('Nickname é obrigatório') : yup.string(),
     birthday:
       activeStep === 1
@@ -91,6 +99,7 @@ export const Register = () => {
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -102,21 +111,30 @@ export const Register = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
 
-  const onSubmit = (data: {
-    email?: string | undefined;
-    password?: string | undefined;
-    nickname?: string | undefined;
-    birthday?: Date | undefined;
-    musicGenres?: string[] | undefined;
-  }) => {
-    if (activeStep === steps.length - 1) {
-      console.log('Dados do formulário:', data);
-      // Adicione lógica de registro aqui
-    } else {
-      console.log('eueue');
-      handleNext();
-    }
+  const handleBack = () => {
+    setActiveStep((prevStep) => prevStep - 1);
   };
+
+  const onSubmit = async () => {
+    if (activeStep === steps.length - 1) {
+      const data = getValues();
+      setIsLoadingSubmit(true);
+
+      try {
+        const response = await AuthService.createUser(data?.email ?? '', data?.password ?? '', data?.nickname ?? '');
+        Store.saveUser({ username: response.nickname, email: response.email, id: response.id });
+        location.assign('/');
+        setMessageError(null);
+      } catch (err) {
+        if (axios.isAxiosError(err)) setMessageError(err?.response?.data?.error ?? 'Erro ao registrar usuário');
+        else setMessageError('Erro ao registrar usuário');
+      } finally {
+        setIsLoadingSubmit(false);
+      }
+    } else handleNext();
+  };
+
+  console.log(messageError);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -234,15 +252,41 @@ export const Register = () => {
                 />
               </>
             )}
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              className={classes.button}
-              onClick={handleSubmit(onSubmit)}
-            >
-              {activeStep === steps.length - 1 ? 'Registrar' : 'Próximo'}
-            </Button>
+            {!!messageError && (
+              <Typography variant="caption" color="red">
+                * {messageError}
+              </Typography>
+            )}
+            <Box sx={{ display: 'flex', gap: '4px', justifyContent: 'space-between' }}>
+              {activeStep !== 0 && (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  type="button"
+                  className={classes.button}
+                  onClick={handleBack}
+                  disabled={isLoadingSubmit}
+                >
+                  Voltar
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                className={classes.button}
+                disabled={isLoadingSubmit}
+                onClick={handleSubmit(onSubmit)}
+              >
+                {isLoadingSubmit ? (
+                  <CircularProgress size="25px" />
+                ) : activeStep === steps.length - 1 ? (
+                  'Registrar'
+                ) : (
+                  'Próximo'
+                )}
+              </Button>
+            </Box>
           </Box>
         </Paper>
       </Container>

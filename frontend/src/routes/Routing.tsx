@@ -5,9 +5,18 @@ import { Songs } from '@/pages/Songs';
 import { Playlists } from '@/pages/Playlists';
 import { PlaylistDetail } from '@/pages/PlaylistDetail';
 import Store from '@/store';
+import NotFoundPage from '@/components/PageNotFound';
 
-const PrivateRoute = ({ element, authenticated }: { element: JSX.Element; authenticated: boolean }) => {
-  return authenticated ? element : <Navigate to="/login" />;
+const PrivateRoute = ({
+  element,
+  authenticated,
+  path = '/login',
+}: {
+  element: JSX.Element;
+  authenticated: boolean;
+  path?: string;
+}) => {
+  return authenticated ? element : <Navigate to={path} />;
 };
 
 const Routing = () => {
@@ -15,8 +24,10 @@ const Routing = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="*" element={<NotFoundPage />} />
+
+      <Route path="/login" element={<PrivateRoute element={<Login />} authenticated={!userData} path="/" />} />
+      <Route path="/register" element={<PrivateRoute element={<Register />} authenticated={!userData} path="/" />} />
 
       {/* Rotas protegidas */}
       <Route path="/" element={<PrivateRoute element={<Songs />} authenticated={!!userData} />} />
