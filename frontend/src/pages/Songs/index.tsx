@@ -6,6 +6,7 @@ import AddToPlaylistIcon from '@mui/icons-material/PlaylistAdd';
 import DetailsIcon from '@mui/icons-material/Info';
 import { useMemo, useState } from 'react';
 import { SongModal } from '@/components/SongModal';
+import { AddToPlaylistModal } from '@/components/AddToPlaylistModal';
 
 const songs: TCard[] = [
   {
@@ -61,13 +62,14 @@ const songs: TCard[] = [
 
 export const Songs = () => {
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
+  const [playListModalId, setPlaylistModalId] = useState<string>('');
 
   const SongActions: Actions[] = useMemo(
     () => [
       {
         label: 'Adicionar à Playlist',
         icon: <AddToPlaylistIcon sx={{ marginRight: 1 }} />,
-        onClick: (id) => console.log(id),
+        onClick: (id) => setPlaylistModalId(id),
       },
       {
         label: 'Ver mais detalhes',
@@ -84,6 +86,8 @@ export const Songs = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header />
+
+      <AddToPlaylistModal isOpen={!!playListModalId} onClose={() => setPlaylistModalId('')} />
       <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
       <Box
         sx={{

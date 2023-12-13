@@ -38,7 +38,19 @@ export const CommentModal = ({
             <CloseIcon />
           </IconButton>
         </Box>
-        <Rating name="simple-controlled" value={rating} onChange={handleRatingChange} />
+        <Rating
+          name="simple-controlled"
+          value={rating}
+          onChange={handleRatingChange}
+          sx={{
+            '& .MuiRating-iconFilled': {
+              color: '#ffF',
+            },
+            '& .MuiRating-iconHover': {
+              color: '#999999',
+            },
+          }}
+        />
         <Typography variant="body1" sx={{ overflowWrap: 'break-word' }}>
           {commentText}
         </Typography>

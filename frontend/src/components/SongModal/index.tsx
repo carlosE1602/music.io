@@ -18,6 +18,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { CommentsSection } from '../CommentsSection';
+import { AddToPlaylistModal } from '../AddToPlaylistModal';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -87,6 +88,7 @@ export const SongModal = (props: TSongModalProps) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
+  const [playListModal, setPlaylistModal] = useState<boolean>(false);
 
   // Exemplo de dados de música
   const musicDetails = {
@@ -146,84 +148,92 @@ export const SongModal = (props: TSongModalProps) => {
   };
 
   return (
-    <Dialog maxWidth="md" open={isOpen} onClose={handleClose}>
-      <DialogContent
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          padding: '20px',
-          borderRadius: '10px',
-          textAlign: 'justify',
-          // minWidth: '900px',
-          maxWidth: '800px',
-          // overflow: 'hidden',
-        }}
-      >
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={2}>
-            <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
-          </Grid>
-          <Grid item xs={12} md={9.5} className={classes.musicInfo}>
-            <Typography variant="h5" gutterBottom>
-              {musicDetails.name}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Álbum: {musicDetails.album}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Duração: {musicDetails.duration}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography variant="body1" color="textSecondary">
-                Avaliação:
+    <>
+      <Dialog maxWidth="md" open={isOpen} onClose={handleClose}>
+        <DialogContent
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            padding: '20px',
+            borderRadius: '10px',
+            textAlign: 'justify',
+            // minWidth: '900px',
+            maxWidth: '800px',
+            // overflow: 'hidden',
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={2}>
+              <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
+            </Grid>
+            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
+              <Typography variant="h5" gutterBottom>
+                {musicDetails.name}
               </Typography>
-              <Rating
-                name="half-rating-read"
-                defaultValue={musicDetails.rating}
-                precision={0.5}
-                size="small"
-                readOnly
-                sx={{
-                  '& .MuiRating-iconFilled': {
-                    color: '#ffF',
-                  },
-                  '& .MuiRating-iconHover': {
-                    color: '#999999',
-                  },
+              <Typography variant="body1" color="textSecondary">
+                Álbum: {musicDetails.album}
+              </Typography>
+              <Typography variant="body1" color="textSecondary">
+                Duração: {musicDetails.duration}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography variant="body1" color="textSecondary">
+                  Avaliação:
+                </Typography>
+                <Rating
+                  name="half-rating-read"
+                  defaultValue={musicDetails.rating}
+                  precision={0.5}
+                  size="small"
+                  readOnly
+                  sx={{
+                    '& .MuiRating-iconFilled': {
+                      color: '#ffF',
+                    },
+                    '& .MuiRating-iconHover': {
+                      color: '#999999',
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box
+                sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                onClick={() => {
+                  setPlaylistModal(true);
                 }}
+              >
+                <AddToPlaylistIcon htmlColor="#999999" />
+                <Typography variant="body1" color="textSecondary">
+                  Adicionar à playlist
+                </Typography>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
+              <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+
+            <Grid item xs={12}>
+              <CommentsSection
+                // classes={classes}
+                handleFilterMenuOpen={handleFilterMenuOpen}
+                handleFilterMenuClose={handleFilterMenuClose}
+                filterMenuAnchor={filterMenuAnchor}
+                selectedFilter={selectedFilter}
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                isLoadingComments={isLoadingComments}
+                musicDetails={musicDetails}
               />
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}>
-              <AddToPlaylistIcon htmlColor="#999999" />
-              <Typography variant="body1" color="textSecondary">
-                Adicionar à playlist
-              </Typography>
-            </Box>
+            </Grid>
           </Grid>
-
-          <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-            <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-
-          <Grid item xs={12}>
-            <CommentsSection
-              // classes={classes}
-              handleFilterMenuOpen={handleFilterMenuOpen}
-              handleFilterMenuClose={handleFilterMenuClose}
-              filterMenuAnchor={filterMenuAnchor}
-              selectedFilter={selectedFilter}
-              inputValue={inputValue}
-              setInputValue={setInputValue}
-              isLoadingComments={isLoadingComments}
-              musicDetails={musicDetails}
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <AddToPlaylistModal isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
+    </>
   );
 };
