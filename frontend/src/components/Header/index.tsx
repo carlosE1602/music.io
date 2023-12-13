@@ -1,4 +1,3 @@
-// Importações necessárias
 import React from 'react';
 import { AppBar, Toolbar, IconButton, Typography, InputBase, Avatar, Menu, MenuItem, Box } from '@mui/material';
 import { Search as SearchIcon, AccountCircle as AccountCircleIcon, MusicNote, QueueMusic } from '@mui/icons-material';
@@ -6,8 +5,12 @@ import debounce from 'lodash/debounce';
 import CreatePlaylistModal from '../CreatePlaylistModal';
 import Store from '@/store';
 
-// Componente principal
-function Header() {
+type THeaderProps = {
+  showSearchBar?: boolean;
+};
+
+function Header(props: THeaderProps) {
+  const { showSearchBar = true } = props;
   // Lógica para o menu do avatar
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
@@ -22,7 +25,6 @@ function Header() {
 
   // Função para deslogar o usuário (substitua pelo seu próprio método)
   const handleLogout = () => {
-    // Sua lógica de deslogar aqui
     Store.logout();
     location.assign('/login');
     handleClose();
@@ -30,7 +32,7 @@ function Header() {
 
   // Função de debounce para a pesquisa
   const debouncedSearch = debounce((value: string) => {
-    console.log(value); // Aqui você pode fazer o que quiser com o valor pesquisado
+    console.log(value);
   }, 500);
 
   const handleSearchChange = (event: any) => {
@@ -79,7 +81,6 @@ function Header() {
             <MenuItem onClick={() => location.assign('/playlists')}>Ir para Playlists</MenuItem>
           </Menu>
         </Box>
-
         <div style={{ flexGrow: 1, padding: '0px 24px' }}>
           <div
             style={{
@@ -87,7 +88,7 @@ function Header() {
               borderRadius: '4px',
               backgroundColor: 'rgba(255, 255, 255, 0.15)',
               marginLeft: 0,
-              display: 'flex',
+              display: !showSearchBar ? 'none' : 'flex',
               gap: '8px',
               alignItems: 'center',
               width: '100%',
@@ -104,7 +105,6 @@ function Header() {
             />
           </div>
         </div>
-
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenu}>
           <Avatar>{userData?.username?.charAt(0)}</Avatar>
           <Typography variant="CTA2">{userData?.username}</Typography>

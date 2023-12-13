@@ -265,7 +265,7 @@ export const PlaylistDetail = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Header />
+      <Header showSearchBar={false} />
       <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
       <Box sx={{ overflow: 'auto', maxHeight: 'calc(100vh - 64px)' }}>
         <Grid
