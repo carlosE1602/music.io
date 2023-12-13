@@ -11,6 +11,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { TCard } from '@/components/CardList/CardList';
 import SongListItem from './components/SongListItem';
 import { CommentsSection } from '@/components/CommentsSection';
+import { enqueueSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -244,8 +245,9 @@ export const PlaylistDetail = () => {
     setAnchorEl(null);
   };
 
-  const handleShareClick = () => {
-    // Lógica para compartilhar a playlist
+  const handleShareClick = async (id: string) => {
+    await navigator.clipboard.writeText(`localhost:5173/playlists/detail/${id}`);
+    enqueueSnackbar('Link copiado para a area de transferência!');
     handleMenuClose();
   };
 
@@ -316,9 +318,8 @@ export const PlaylistDetail = () => {
             <Typography variant="body1" color="textSecondary" mt="32px">
               {playlistDetail.description}
             </Typography>
-            {/* Botões de compartilhar e editar */}
             <Box sx={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <Button variant="outlined" onClick={handleShareClick}>
+              <Button variant="outlined" onClick={() => location.assign('/')}>
                 Adicionar Músicas
               </Button>
               <Button variant="outlined" onClick={handleEditClick}>
@@ -337,7 +338,12 @@ export const PlaylistDetail = () => {
                 Excluir
               </MenuItem>
 
-              <MenuItem onClick={handleShareClick} sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <MenuItem
+                onClick={() => {
+                  handleShareClick(id?.toString() ?? '');
+                }}
+                sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
                 <ShareIcon />
                 Compartilhar
               </MenuItem>
