@@ -4,6 +4,7 @@ import { AppBar, Toolbar, IconButton, Typography, InputBase, Avatar, Menu, MenuI
 import { Search as SearchIcon, AccountCircle as AccountCircleIcon, MusicNote, QueueMusic } from '@mui/icons-material';
 import debounce from 'lodash/debounce';
 import CreatePlaylistModal from '../CreatePlaylistModal';
+import Store from '@/store';
 
 // Componente principal
 function Header() {
@@ -11,6 +12,8 @@ function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  const userData = Store.getUser();
 
   const [playlistMenuAnchorEl, setPlaylistMenuAnchorEl] = React.useState(null);
   const [creationModal, setCreationModal] = React.useState<boolean>(false);
@@ -20,6 +23,8 @@ function Header() {
   // Função para deslogar o usuário (substitua pelo seu próprio método)
   const handleLogout = () => {
     // Sua lógica de deslogar aqui
+    Store.logout();
+    location.assign('/login');
     handleClose();
   };
 
@@ -100,12 +105,13 @@ function Header() {
           </div>
         </div>
 
-        <IconButton size="large" color="inherit" onClick={handleMenu}>
-          <Avatar>U</Avatar>
-        </IconButton>
+        <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenu}>
+          <Avatar>{userData?.username.charAt(0)}</Avatar>
+          <Typography variant="CTA2">{userData?.username}</Typography>
+        </Box>
         <Menu
           anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
+          open={Boolean(anchorEl) && !!userData}
           onClose={handleClose}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}

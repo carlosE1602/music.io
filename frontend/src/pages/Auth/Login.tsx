@@ -8,6 +8,7 @@ import { makeStyles } from '@mui/styles';
 import logo from '@/assets/imgs/logo.png';
 import { AuthService } from '@/services/AuthService';
 import axios from 'axios';
+import Store from '@/store';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -72,6 +73,7 @@ export const Login = () => {
     setIsLoading(true);
     try {
       const response = await AuthService.login(data.password, data.username);
+      Store.saveUser({ username: response.nickname, email: response.email, id: response.id });
       location.assign('/');
       setErrorMessage(null);
     } catch (err) {
