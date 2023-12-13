@@ -7,10 +7,11 @@ import Store from '@/store';
 
 type THeaderProps = {
   showSearchBar?: boolean;
+  searchFunction?: (key: string) => void;
 };
 
 function Header(props: THeaderProps) {
-  const { showSearchBar = true } = props;
+  const { showSearchBar = true, searchFunction } = props;
   // Lógica para o menu do avatar
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
@@ -32,7 +33,7 @@ function Header(props: THeaderProps) {
 
   // Função de debounce para a pesquisa
   const debouncedSearch = debounce((value: string) => {
-    console.log(value);
+    if (searchFunction) searchFunction(value);
   }, 500);
 
   const handleSearchChange = (event: any) => {

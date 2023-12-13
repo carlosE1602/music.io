@@ -56,10 +56,11 @@ type TCardListProps = {
   cards: TCard[];
   actions: Actions[];
   onCardClick: (card: TCard) => void;
+  onLoadContent?: () => void;
 };
 
 export const CardList = (props: TCardListProps) => {
-  const { title, isLoading, cards, actions, onCardClick } = props;
+  const { title, isLoading, cards, actions, onCardClick, onLoadContent } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [clickedCard, setClickedCard] = useState<TCard>();
 
@@ -135,7 +136,7 @@ export const CardList = (props: TCardListProps) => {
       </Grid>
       {!isLoading && cards.length > 0 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-          <Button variant="contained" color="primary" onClick={() => console.log('eueu')}>
+          <Button variant="contained" color="primary" onClick={() => !!onLoadContent && onLoadContent()}>
             <Typography variant="Body1SemiBold" color="#FFF">
               Carregar Mais
             </Typography>
