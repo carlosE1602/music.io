@@ -72,6 +72,7 @@ export type TComment = {
     avatar: string;
   };
   likesCount: number;
+  rating: number;
 };
 
 type TSongModalProps = {
@@ -208,108 +209,7 @@ export const SongModal = (props: TSongModalProps) => {
             </IconButton>
           </Grid>
 
-          {/* Comentários (abaixo) */}
           <Grid item xs={12}>
-            {/* <div className={classes.commentsSection}>
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography variant="h6">Comentários</Typography>
-                <Box
-                  sx={{ display: 'flex', gap: '4px', cursor: 'pointer', alignItems: 'center' }}
-                  onClick={handleFilterMenuOpen}
-                >
-                  <FilterListIcon />
-                  <Typography variant="Body1SemiBold">Ordenar por</Typography>
-                </Box>
-                <Menu
-                  anchorEl={filterMenuAnchor}
-                  open={Boolean(filterMenuAnchor)}
-                  onClose={() => handleFilterMenuClose(selectedFilter)}
-                >
-                  <MenuItem onClick={() => handleFilterMenuClose('POPULAR')} sx={{ display: 'flex', gap: '4px' }}>
-                    {selectedFilter === 'POPULAR' ? <CheckIcon fontSize="small" /> : <> </>} Mais Relevantes
-                  </MenuItem>
-                  <MenuItem onClick={() => handleFilterMenuClose('RECENT')} sx={{ display: 'flex', gap: '4px' }}>
-                    {selectedFilter === 'RECENT' ? <CheckIcon fontSize="small" /> : <> </>} Mais Recentes
-                  </MenuItem>
-                </Menu>
-              </Box>
-              <div className={classes.inputComment}>
-                <TextField
-                  label="Adicione seu comentario"
-                  variant="outlined"
-                  fullWidth
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                />
-                <IconButton
-                  className={classes.sendIcon}
-                  onClick={() => {
-                    console.log(inputValue);
-                    setInputValue('');
-                  }}
-                >
-                  <SendIcon />
-                </IconButton>
-              </div>
-
-              <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
-                {!isLoadingComments
-                  ? musicDetails.comments.map((comment, index) => (
-                      <div key={index} className={classes.comment}>
-                        <Avatar
-                          src={comment?.user?.avatar}
-                          alt={comment?.user?.name}
-                          className={classes.commentAvatar}
-                        />
-                        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                          <div>
-                            <Typography variant="body2" color="textSecondary">
-                              {comment?.user?.name} • {comment?.date}
-                            </Typography>
-                            <Typography variant="body1">{comment?.text}</Typography>
-                          </div>
-                          <div
-                            style={{ display: 'flex', flexDirection: 'column', gap: '2px', justifyContent: 'center' }}
-                          >
-                            <IconButton className={classes.sendIcon} onClick={() => console.log('like')}>
-                              {!!comment.likesCount ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                            </IconButton>
-                            <Typography variant="body2">{comment.likesCount} Likes</Typography>
-                          </div>
-                        </Box>
-                      </div>
-                    ))
-                  : [1, 2].map((elem) => (
-                      <div key={elem} className={classes.comment}>
-                        <Skeleton variant="circular" width={50} height={50} />
-                        <Box display="flex" justifyContent="space-between" width="100%">
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <Skeleton variant="rectangular" width={50} height={17} />
-
-                            <Skeleton variant="rectangular" width={150} height={17} />
-                          </div>
-                        </Box>
-                      </div>
-                    ))}
-                {!isLoadingComments && musicDetails.comments.length > 0 && (
-                  <div
-                    className={classes.moreComments}
-                    onClick={() => {
-                      console.log('buscar mais comentarios');
-                    }}
-                  >
-                    <AddIcon />
-                    <Typography variant="body2">Carregar mais comentários</Typography>
-                  </div>
-                )}
-
-                {!isLoadingComments && musicDetails.comments.length === 0 && (
-                  <div>
-                    <Typography variant="body1">Não há comentários até o momento...</Typography>
-                  </div>
-                )}
-              </div>
-            </div> */}
             <CommentsSection
               // classes={classes}
               handleFilterMenuOpen={handleFilterMenuOpen}

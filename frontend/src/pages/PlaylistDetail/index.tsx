@@ -176,6 +176,7 @@ const musicDetails = {
         avatar: 'avatar_url.jpg',
       },
       likesCount: 10,
+      rating: 3.5,
     },
     {
       text: 'Love it!',
@@ -185,6 +186,7 @@ const musicDetails = {
         avatar: 'avatar_url.jpg',
       },
       likesCount: 0,
+      rating: 2.5,
     },
     {
       text: 'Great song!',
@@ -194,6 +196,7 @@ const musicDetails = {
         avatar: 'avatar_url.jpg',
       },
       likesCount: 0,
+      rating: 3.5,
     },
     {
       text: 'Love it!',
@@ -203,6 +206,7 @@ const musicDetails = {
         avatar: 'avatar_url.jpg',
       },
       likesCount: 0,
+      rating: 3.5,
     },
   ] as TComment[],
 };

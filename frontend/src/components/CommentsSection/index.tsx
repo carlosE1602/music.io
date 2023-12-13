@@ -1,4 +1,4 @@
-import { Avatar, Box, Grid, IconButton, Menu, MenuItem, Skeleton, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Grid, IconButton, Menu, MenuItem, Rating, Skeleton, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -10,6 +10,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import { TComment } from '../SongModal';
+import { CommentModal } from './CommentModal';
+import { useState } from 'react';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -29,6 +31,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
   comment: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     gap: '4px',
     marginBottom: theme.spacing(1),
@@ -68,6 +71,18 @@ export const CommentsSection = (props: any) => {
   } = props;
 
   const classes = useStyles();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const handleCommentSubmit = () => {
+    // Open the modal
+    if (inputValue) setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    // Close the modal and clear the input
+    setModalOpen(false);
+    setInputValue('');
+  };
+
   return (
     <Grid item xs={12} overflow="auto" width="100%">
       <div className={classes.commentsSection}>
@@ -98,16 +113,11 @@ export const CommentsSection = (props: any) => {
             label="Adicione seu comentario"
             variant="outlined"
             fullWidth
+            inputProps={{ maxLength: 100 }}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-          <IconButton
-            className={classes.sendIcon}
-            onClick={() => {
-              console.log(inputValue);
-              setInputValue('');
-            }}
-          >
+          <IconButton className={classes.sendIcon} onClick={handleCommentSubmit}>
             <SendIcon />
           </IconButton>
         </div>
@@ -116,20 +126,50 @@ export const CommentsSection = (props: any) => {
           {!isLoadingComments
             ? musicDetails.comments.map((comment: TComment, index: number) => (
                 <div key={index} className={classes.comment}>
-                  <Avatar src={comment?.user?.avatar} alt={comment?.user?.name} className={classes.commentAvatar} />
-                  <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                    <div>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <Avatar src={comment?.user?.avatar} alt={comment?.user?.name} className={classes.commentAvatar} />
                       <Typography variant="body2" color="textSecondary">
-                        {comment?.user?.name} • {comment?.date}
+                        {comment?.user?.name}
                       </Typography>
-                      <Typography variant="body1">{comment?.text}</Typography>
-                    </div>
+                    </Box>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', justifyContent: 'center' }}>
                       <IconButton className={classes.sendIcon} onClick={() => console.log('like')}>
                         {!!comment.likesCount ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       </IconButton>
                       <Typography variant="body2">{comment.likesCount} Likes</Typography>
                     </div>
+                  </Box>
+
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    gap="4px"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    width="100%"
+                  >
+                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-start' }}>
+                      <Rating
+                        name="half-rating-read"
+                        defaultValue={comment.rating}
+                        precision={0.5}
+                        size="small"
+                        readOnly
+                        sx={{
+                          '& .MuiRating-iconFilled': {
+                            color: '#ffF',
+                          },
+                          '& .MuiRating-iconHover': {
+                            color: '#999999',
+                          },
+                        }}
+                      />
+                      <Typography variant="body2" color="textSecondary">
+                        {comment?.date}
+                      </Typography>
+                    </div>
+                    <Typography variant="body1">{comment?.text}</Typography>
                   </Box>
                 </div>
               ))
@@ -163,6 +203,7 @@ export const CommentsSection = (props: any) => {
             </div>
           )}
         </div>
+        <CommentModal open={isModalOpen} onClose={handleCloseModal} commentText={inputValue} />
       </div>
     </Grid>
   );
