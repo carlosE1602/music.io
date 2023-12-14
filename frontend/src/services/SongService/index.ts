@@ -28,9 +28,19 @@ export const getSongRecommendations = async (
   return data;
 };
 
-export const getSong = async (songId: string, page: number): Promise<any> => {
+export type TPagSongDetail = {
+  album: string;
+  artist: string;
+  duration: number;
+  name: string;
+  rating: number;
+  imageurl: string;
+  avaliacao: TPagSong;
+};
+
+export const getSong = async (songId: string, page: number): Promise<TPagSongDetail> => {
   const params: Record<string, any> = {
-    limit: 10,
+    limit: 9999999999999,
     page,
   };
 
