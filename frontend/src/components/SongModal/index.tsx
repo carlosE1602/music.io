@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { CommentsSection } from '../CommentsSection';
 import { AddToPlaylistModal } from '../AddToPlaylistModal';
+import { SongService } from '@/services/SongService';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -89,10 +90,16 @@ export const SongModal = (props: TSongModalProps) => {
 
   useEffect(() => {
     // call music by id
+    if (!songId) return;
+    const fetchSong = async () => {
+      const data = await SongService.getSong(songId, 1);
+      console.log(data);
+      return data;
+    };
+
     setIsLoadingComments(true);
-    setTimeout(() => {
-      setIsLoadingComments(false);
-    }, 2000);
+    fetchSong();
+    setIsLoadingComments(false);
   }, [songId]);
 
   // Exemplo de dados de música
@@ -120,6 +127,11 @@ export const SongModal = (props: TSongModalProps) => {
   const handleFilterMenuClose = (option: 'POPULAR' | 'RECENT') => {
     setFilterMenuAnchor(null);
     setSelectedFilter(option);
+  };
+
+  const handleSubmitReview = (rating: number | null, commentText: string) => {
+    console.log(rating, commentText);
+    return true;
   };
 
   return (
@@ -218,58 +230,6 @@ export const SongModal = (props: TSongModalProps) => {
                 <CloseIcon />
               </IconButton>
             </Grid>
-            {/* <Grid item xs={12} md={2}>
-              <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
-            </Grid>
-            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
-              <Typography variant="h5" gutterBottom>
-                {musicDetails.name}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Álbum: {musicDetails.album}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Duração: {musicDetails.duration}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography variant="body1" color="textSecondary">
-                  Avaliação:
-                </Typography>
-                <Rating
-                  name="half-rating-read"
-                  defaultValue={musicDetails.rating}
-                  precision={0.5}
-                  size="small"
-                  readOnly
-                  sx={{
-                    '& .MuiRating-iconFilled': {
-                      color: '#ffF',
-                    },
-                    '& .MuiRating-iconHover': {
-                      color: '#999999',
-                    },
-                  }}
-                />
-              </Box>
-
-              <Box
-                sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                onClick={() => {
-                  setPlaylistModal(true);
-                }}
-              >
-                <AddToPlaylistIcon htmlColor="#999999" />
-                <Typography variant="body1" color="textSecondary">
-                  Adicionar à playlist
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-              <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
-                <CloseIcon />
-              </IconButton>
-            </Grid> */}
 
             <Grid item xs={12}>
               <CommentsSection
@@ -282,6 +242,7 @@ export const SongModal = (props: TSongModalProps) => {
                 setInputValue={setInputValue}
                 isLoadingComments={isLoadingComments}
                 musicDetails={musicDetails}
+                handleReview={handleSubmitReview}
               />
             </Grid>
           </Grid>

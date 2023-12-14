@@ -28,6 +28,20 @@ export const getSongRecommendations = async (
   return data;
 };
 
+export const getSong = async (songId: string, page: number): Promise<any> => {
+  const params: Record<string, any> = {
+    limit: 10,
+    page,
+  };
+
+  const { data } = await HttpService.get(`/musics/${songId}`, {
+    params,
+  });
+
+  return data;
+};
+
 export const SongService = {
   getSongRecommendations,
+  getSong,
 };

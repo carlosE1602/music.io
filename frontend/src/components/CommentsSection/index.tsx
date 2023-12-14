@@ -68,6 +68,7 @@ export const CommentsSection = (props: any) => {
     setInputValue,
     isLoadingComments,
     musicDetails,
+    handleReview,
   } = props;
 
   const classes = useStyles();
@@ -205,7 +206,12 @@ export const CommentsSection = (props: any) => {
             </div>
           )}
         </div>
-        <CommentModal open={isModalOpen} onClose={handleCloseModal} commentText={inputValue} />
+        <CommentModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          commentText={inputValue}
+          handleReview={handleReview}
+        />
       </div>
     </Grid>
   );
