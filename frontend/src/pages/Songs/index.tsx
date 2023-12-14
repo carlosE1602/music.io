@@ -11,7 +11,7 @@ import Store from '@/store';
 import { SongService } from '@/services/SongService';
 
 export const Songs = () => {
-  const [selectedSong, setSelectedSong] = useState<TCard | null>();
+  const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
   const [playListModalId, setPlaylistModalId] = useState<string>('');
   const [songs, setSongs] = useState<TCard[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -33,8 +33,7 @@ export const Songs = () => {
         label: 'Ver mais detalhes',
         icon: <DetailsIcon sx={{ marginRight: 1 }} />,
         onClick: (id) => {
-          const selectedSongById = songs.find((elem) => elem.id == id);
-          setSelectedSong(selectedSongById);
+          setSelectedSongId(id);
         },
       },
     ],
@@ -94,7 +93,7 @@ export const Songs = () => {
       <Header searchFunction={handleSearch} selectedGenreId={selectedGenreId} />
 
       <AddToPlaylistModal isOpen={!!playListModalId} onClose={() => setPlaylistModalId('')} />
-      <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
+      <SongModal isOpen={!!selectedSongId} handleClose={() => setSelectedSongId(null)} songId={selectedSongId} />
       <Box
         sx={{
           overflowY: 'auto',
@@ -107,7 +106,7 @@ export const Songs = () => {
           title="Músicas recomendadas"
           cards={songs}
           actions={SongActions}
-          onCardClick={(card: TCard) => setSelectedSong(card)}
+          onCardClick={(card: TCard) => setSelectedSongId(card.id)}
           pageLimit={pageLimit}
           currentPage={currentPage}
         />
