@@ -1,5 +1,6 @@
 import { Box, Dialog, DialogContent, DialogTitle, Grid, IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { enqueueSnackbar } from 'notistack';
 
 type TProps = {
   isOpen: boolean;
@@ -9,8 +10,11 @@ type TProps = {
 export const AddToPlaylistModal = (props: TProps) => {
   const { isOpen, onClose } = props;
 
-  const onClick = (id: string) => console.log(id);
-
+  const onClick = (id: string) => {
+    enqueueSnackbar('Música adicionada com sucesso');
+    onClose();
+    console.log(id);
+  };
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <DialogTitle sx={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'space-between' }}>

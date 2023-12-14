@@ -4,11 +4,11 @@ import { Box } from '@mui/material';
 
 import AddToPlaylistIcon from '@mui/icons-material/PlaylistAdd';
 import DetailsIcon from '@mui/icons-material/Info';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SongModal } from '@/components/SongModal';
 import { AddToPlaylistModal } from '@/components/AddToPlaylistModal';
 
-const songs: TCard[] = [
+const fixedSongs: TCard[] = [
   {
     id: '1',
     title: 'Song 1',
@@ -63,6 +63,8 @@ const songs: TCard[] = [
 export const Songs = () => {
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
   const [playListModalId, setPlaylistModalId] = useState<string>('');
+  const [songs, setSongs] = useState<TCard[]>(fixedSongs);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const SongActions: Actions[] = useMemo(
     () => [
@@ -83,9 +85,30 @@ export const Songs = () => {
     [songs],
   );
 
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 1000);
+  }, []);
+
+  const handleSearch = (key: string) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      if (!key) setSongs([]);
+      else setSongs(fixedSongs);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleGetMore = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setSongs((prev) => [...prev, ...fixedSongs]);
+      setIsLoading(false);
+    }, 1000);
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Header />
+      <Header searchFunction={handleSearch} />
 
       <AddToPlaylistModal isOpen={!!playListModalId} onClose={() => setPlaylistModalId('')} />
       <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
@@ -96,7 +119,8 @@ export const Songs = () => {
         }}
       >
         <CardList
-          isLoading={false}
+          isLoading={isLoading}
+          onLoadContent={handleGetMore}
           title="Músicas recomendadas"
           cards={songs}
           actions={SongActions}

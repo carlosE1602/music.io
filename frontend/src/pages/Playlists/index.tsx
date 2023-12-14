@@ -5,6 +5,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DetailsIcon from '@mui/icons-material/Info';
 import { useMemo } from 'react';
+import { enqueueSnackbar } from 'notistack';
 
 const myPlaylists: TCard[] = [
   {
@@ -50,7 +51,10 @@ export const Playlists = () => {
       {
         label: 'Compartilhar playlist',
         icon: <ShareIcon sx={{ marginRight: 1 }} />,
-        onClick: (id: string) => console.log(id),
+        onClick: async (id: string) => {
+          await navigator.clipboard.writeText(`localhost:5173/playlists/detail/${id}`);
+          enqueueSnackbar('Link copiado para a area de transferência!');
+        },
       },
       {
         label: 'Ver mais detalhes',

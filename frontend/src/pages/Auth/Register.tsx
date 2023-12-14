@@ -216,7 +216,7 @@ export const Register = () => {
                     <TextField
                       {...field}
                       className={classes.input}
-                      label="Data de Aniversário"
+                      label="Data de Nascimento"
                       type="date"
                       variant="outlined"
                       error={!!errors.birthday}
