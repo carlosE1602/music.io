@@ -151,9 +151,12 @@ module.exports = {
             .select(["avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador"])
             
             let musics = await connection("musics")
-			.where("id",id)
+			.where("musics.id",id)
+            .join('albuns', 'musics.albumid', 'albuns.id')
+            .join('artists', 'musics.artistid', 'artists.id')
+            .join('genres', 'musics.genreid', 'genres.id')
             .first()
-            .select(["*"]);
+            .select(["*", "musics.id as id", "albuns.name as album", "artists.name as artist", "genres.name as genre"]);
 
             const page = request.query.page != undefined ? request.query.page : 1;
             const limit = request.query.limit != undefined ? request.query.limit : 10;
