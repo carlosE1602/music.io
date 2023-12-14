@@ -10,64 +10,15 @@ import { AddToPlaylistModal } from '@/components/AddToPlaylistModal';
 import Store from '@/store';
 import { SongService } from '@/services/SongService';
 
-const fixedSongs: TCard[] = [
-  {
-    id: '1',
-    title: 'Song 1',
-    label: 'Artist 1',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '2',
-    title: 'Song 2',
-    label: 'Artist 2',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '3',
-    title: 'Song 3',
-    label: 'Artist 3',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '4',
-    title: 'Song 4',
-    label: 'Artist 4',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '5',
-    title: 'Song 5',
-    label: 'Artist 5',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '6',
-    title: 'Song 6',
-    label: 'Artist 6',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-  {
-    id: '7',
-    title: 'Song 7',
-    label: 'Artist 7',
-    imgUrl:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-  },
-];
-
 export const Songs = () => {
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
   const [playListModalId, setPlaylistModalId] = useState<string>('');
   const [songs, setSongs] = useState<TCard[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [pageLimit, setPageLimit] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedGenreId, setSelectedGenreId] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>('');
 
   const userData = Store.getUser();
 
@@ -91,12 +42,19 @@ export const Songs = () => {
   );
 
   const getSongs = useCallback(
-    async (currentPage: number) => {
+    async (currentPage: number, genreId?: string, key?: string) => {
       if (!userData) return [] as TCard[];
       setIsLoading(true);
-      const response = await SongService.getSongRecommendations(userData.id, currentPage);
-      setIsLoading(false);
+      const response = await SongService.getSongRecommendations(
+        userData.id,
+        currentPage,
+        genreId ?? selectedGenreId,
+        key,
+      );
+
       setPageLimit(response.NumPag);
+
+      setIsLoading(false);
       return response?.data?.map((elem: any) => ({
         title: elem.name,
         id: elem.id,
@@ -104,41 +62,43 @@ export const Songs = () => {
         label: elem.artist,
       }));
     },
-    [userData],
+    [userData, currentPage, selectedGenreId],
   );
 
   useEffect(() => {
     const fetch = async () => {
       const newData = await getSongs(1);
       setSongs(newData);
+      setCurrentPage(1);
     };
     fetch();
   }, []);
 
-  const handleSearch = (key: string) => {
-    // setIsLoading(true);
-    // setTimeout(() => {
-    //   if (!key) setSongs([]);
-    //   else setSongs(fixedSongs);
-    //   setIsLoading(false);
-    // }, 1000);
+  const handleSearch = async (key: string, genreId?: string) => {
+    const newData = await getSongs(1, genreId, key ?? undefined);
+
+    setSelectedGenreId(genreId ?? '');
+    setInputValue(key ?? '');
+    setSongs(newData);
+    setCurrentPage(1);
   };
 
   const handleGetMore = async (nextPage: number) => {
-    const newData = await getSongs(nextPage);
+    const newData = await getSongs(nextPage, selectedGenreId, inputValue);
+    setCurrentPage(nextPage);
     setSongs(newData);
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Header searchFunction={handleSearch} />
+      <Header searchFunction={handleSearch} selectedGenreId={selectedGenreId} />
 
       <AddToPlaylistModal isOpen={!!playListModalId} onClose={() => setPlaylistModalId('')} />
       <SongModal isOpen={!!selectedSong} handleClose={() => setSelectedSong(null)} isLoadingComments={false} />
       <Box
         sx={{
           overflowY: 'auto',
-          maxHeight: 'calc(100vh - 64px)',
+          maxHeight: 'calc(100vh - 120px)',
         }}
       >
         <CardList
@@ -149,6 +109,7 @@ export const Songs = () => {
           actions={SongActions}
           onCardClick={(card: TCard) => setSelectedSong(card)}
           pageLimit={pageLimit}
+          currentPage={currentPage}
         />
       </Box>
     </Box>

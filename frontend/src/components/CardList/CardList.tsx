@@ -58,13 +58,14 @@ type TCardListProps = {
   onCardClick: (card: TCard) => void;
   onLoadContent?: (page: number) => void;
   pageLimit?: number;
+  currentPage?: number;
 };
 
 export const CardList = (props: TCardListProps) => {
-  const { title, isLoading, cards, actions, onCardClick, onLoadContent, pageLimit = 1 } = props;
+  const { title, isLoading, cards, actions, onCardClick, onLoadContent, pageLimit = 1, currentPage = 1 } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [clickedCard, setClickedCard] = useState<TCard>();
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [currentPage, setCurrentPage] = useState<number>(1);
 
   const classes = useStyles();
 
@@ -80,7 +81,6 @@ export const CardList = (props: TCardListProps) => {
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
-    setCurrentPage(nextPage);
     if (onLoadContent) {
       onLoadContent(nextPage);
     }
@@ -88,7 +88,6 @@ export const CardList = (props: TCardListProps) => {
 
   const handleLoadPrevious = () => {
     const previousPage = currentPage - 1;
-    setCurrentPage(previousPage <= 0 ? 1 : previousPage);
     if (onLoadContent) {
       onLoadContent(previousPage <= 0 ? 1 : previousPage);
     }
@@ -101,7 +100,7 @@ export const CardList = (props: TCardListProps) => {
       </Typography>
       <Grid container spacing={2} justifyContent="center" maxWidth="1366px" margin="0 auto">
         {isLoading &&
-          [1, 2, 3, 4, 5].map((id) => (
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => (
             <Grid item key={`load-${id}`}>
               <Skeleton variant="rectangular" width={225} height={325} />
             </Grid>
@@ -154,7 +153,6 @@ export const CardList = (props: TCardListProps) => {
                 <MenuItem
                   key={`action-${id}`}
                   onClick={() => {
-                    console.log(clickedCard);
                     handleMenuClose();
                     elem.onClick(clickedCard?.id ?? '');
                   }}
@@ -173,7 +171,7 @@ export const CardList = (props: TCardListProps) => {
             Anterior
           </Button>
           <Typography variant="body1" color="textPrimary" sx={{ marginLeft: '16px', marginRight: '16px' }}>
-            Página {currentPage}
+            Página {currentPage} de {pageLimit}
           </Typography>
           <Button variant="contained" color="primary" onClick={handleLoadMore} disabled={currentPage === pageLimit}>
             Próxima

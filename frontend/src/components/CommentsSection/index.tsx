@@ -186,12 +186,7 @@ export const CommentsSection = (props: any) => {
                 </div>
               ))}
           {!isLoadingComments && musicDetails.comments.length > 0 && (
-            <div
-              className={classes.moreComments}
-              onClick={() => {
-                console.log('buscar mais comentarios');
-              }}
-            >
+            <div className={classes.moreComments} onClick={() => {}}>
               <AddIcon />
               <Typography variant="body2">Carregar mais comentários</Typography>
             </div>

@@ -1,17 +1,20 @@
-import React from 'react';
-import { AppBar, Toolbar, IconButton, Typography, InputBase, Avatar, Menu, MenuItem, Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { AppBar, Toolbar, IconButton, Typography, InputBase, Avatar, Menu, MenuItem, Box, Chip } from '@mui/material';
 import { Search as SearchIcon, AccountCircle as AccountCircleIcon, MusicNote, QueueMusic } from '@mui/icons-material';
 import debounce from 'lodash/debounce';
 import CreatePlaylistModal from '../CreatePlaylistModal';
 import Store from '@/store';
+import { GenreService } from '@/services/GenreService';
+import { string } from 'yup';
 
 type THeaderProps = {
   showSearchBar?: boolean;
-  searchFunction?: (key: string) => void;
+  searchFunction?: (key: string, genre?: string) => void;
+  selectedGenreId?: string;
 };
 
 function Header(props: THeaderProps) {
-  const { showSearchBar = true, searchFunction } = props;
+  const { showSearchBar = true, searchFunction, selectedGenreId } = props;
   // Lógica para o menu do avatar
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
@@ -24,6 +27,21 @@ function Header(props: THeaderProps) {
   const handlePlaylistMenu = (event: any) => setPlaylistMenuAnchorEl(event.currentTarget);
   const closePlaylistMenu = () => setPlaylistMenuAnchorEl(null);
 
+  const [genres, setGenres] = useState<{ id: string; name: string }[]>();
+
+  useEffect(() => {
+    const getGenres = async () => {
+      try {
+        const data = await GenreService.getGenres();
+        setGenres(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getGenres();
+  }, []);
+
   // Função para deslogar o usuário (substitua pelo seu próprio método)
   const handleLogout = () => {
     Store.logout();
@@ -33,22 +51,25 @@ function Header(props: THeaderProps) {
 
   // Função de debounce para a pesquisa
   const debouncedSearch = debounce((value: string) => {
-    if (searchFunction) searchFunction(value);
+    if (searchFunction) searchFunction(value, selectedGenreId);
   }, 500);
 
   const handleSearchChange = (event: any) => {
     const newValue = event.target.value;
+
     debouncedSearch(newValue);
   };
 
+  const handleGenreChange = (genre: string) => {
+    if (searchFunction) searchFunction('', genre === selectedGenreId ? '' : genre);
+  };
+
   return (
-    <AppBar position="static" sx={{ display: 'flex', gap: '24px' }}>
+    <AppBar position="static" sx={{ display: 'flex' }}>
       <CreatePlaylistModal
         isOpen={creationModal}
         onClose={() => setCreationModal(false)}
-        onSubmit={(props: { name: string; description: string }) => {
-          console.log(props);
-        }}
+        onSubmit={(props: { name: string; description: string }) => {}}
       />
       <Toolbar>
         <Box sx={{ display: 'flex', gap: '24px' }}>
@@ -120,6 +141,42 @@ function Header(props: THeaderProps) {
           <MenuItem onClick={handleLogout}>Sair</MenuItem>
         </Menu>
       </Toolbar>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          padding: '8px 24px',
+          width: '100%',
+          overflowX: 'auto',
+          boxSizing: 'border-box',
+          scrollbarWidth: 'thin',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': {
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(255, 255, 255, 0.5)', // Cor da thumb
+            borderRadius: '4px', // Borda arredondada
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cor de fundo da barra de rolagem
+            borderRadius: '4px', // Borda arredondada
+          },
+        }}
+      >
+        {genres &&
+          genres.map((genre) => {
+            return (
+              <Chip
+                key={genre.id}
+                label={genre.name}
+                variant={selectedGenreId === genre.id ? 'filled' : 'outlined'}
+                onClick={() => handleGenreChange(genre.id)}
+                sx={{ marginRight: '8px' }}
+              />
+            );
+          })}
+      </Box>
     </AppBar>
   );
 }
