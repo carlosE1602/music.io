@@ -8,12 +8,13 @@ const login = async (password: string, email: string) => {
   return data;
 };
 
-const createUser = async (email: string, password: string, nickname: string) => {
+const createUser = async (email: string, password: string, nickname: string, genres: string[]) => {
   const { data } = await HttpService.post('/users', {
     password1: password,
     password2: password,
     nickname,
     email,
+    genres,
   });
   return data;
 };

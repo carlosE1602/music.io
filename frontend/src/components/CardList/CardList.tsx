@@ -56,13 +56,16 @@ type TCardListProps = {
   cards: TCard[];
   actions: Actions[];
   onCardClick: (card: TCard) => void;
-  onLoadContent?: () => void;
+  onLoadContent?: (page: number) => void;
+  pageLimit?: number;
+  currentPage?: number;
 };
 
 export const CardList = (props: TCardListProps) => {
-  const { title, isLoading, cards, actions, onCardClick, onLoadContent } = props;
+  const { title, isLoading, cards, actions, onCardClick, onLoadContent, pageLimit = 1, currentPage = 1 } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [clickedCard, setClickedCard] = useState<TCard>();
+  // const [currentPage, setCurrentPage] = useState<number>(1);
 
   const classes = useStyles();
 
@@ -76,6 +79,20 @@ export const CardList = (props: TCardListProps) => {
     setAnchorEl(null);
   };
 
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    if (onLoadContent) {
+      onLoadContent(nextPage);
+    }
+  };
+
+  const handleLoadPrevious = () => {
+    const previousPage = currentPage - 1;
+    if (onLoadContent) {
+      onLoadContent(previousPage <= 0 ? 1 : previousPage);
+    }
+  };
+
   return (
     <div className={classes.root}>
       <Typography variant="h4" className={classes.title}>
@@ -83,7 +100,7 @@ export const CardList = (props: TCardListProps) => {
       </Typography>
       <Grid container spacing={2} justifyContent="center" maxWidth="1366px" margin="0 auto">
         {isLoading &&
-          [1, 2, 3, 4, 5].map((id) => (
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => (
             <Grid item key={`load-${id}`}>
               <Skeleton variant="rectangular" width={225} height={325} />
             </Grid>
@@ -97,8 +114,23 @@ export const CardList = (props: TCardListProps) => {
                     <CardMedia className={classes.media} image={card.imgUrl} title={card.title} />
                     <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <Typography variant="subtitle1">{card.title}</Typography>
-                        <Typography variant="body2" color="textSecondary">
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}
+                        >
+                          {card.title}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          sx={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '130px',
+                          }}
+                        >
                           {card.label}
                         </Typography>
                       </Box>
@@ -121,7 +153,6 @@ export const CardList = (props: TCardListProps) => {
                 <MenuItem
                   key={`action-${id}`}
                   onClick={() => {
-                    console.log(clickedCard);
                     handleMenuClose();
                     elem.onClick(clickedCard?.id ?? '');
                   }}
@@ -135,11 +166,15 @@ export const CardList = (props: TCardListProps) => {
         )}
       </Grid>
       {!isLoading && cards.length > 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-          <Button variant="contained" color="primary" onClick={() => !!onLoadContent && onLoadContent()}>
-            <Typography variant="Body1SemiBold" color="#FFF">
-              Carregar Mais
-            </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '16px' }}>
+          <Button variant="contained" color="primary" onClick={handleLoadPrevious} disabled={currentPage === 1}>
+            Anterior
+          </Button>
+          <Typography variant="body1" color="textPrimary" sx={{ marginLeft: '16px', marginRight: '16px' }}>
+            Página {currentPage} de {pageLimit}
+          </Typography>
+          <Button variant="contained" color="primary" onClick={handleLoadMore} disabled={currentPage === pageLimit}>
+            Próxima
           </Button>
         </Box>
       )}

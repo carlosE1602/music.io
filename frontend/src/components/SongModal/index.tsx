@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Avatar from '@mui/material/Avatar';
@@ -66,29 +66,34 @@ const useStyles = makeStyles((theme: any) => ({
 }));
 
 export type TComment = {
-  text: string;
-  date: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  likesCount: number;
+  comment: string;
+  t_date: number;
+  criador: string;
   rating: number;
 };
 
 type TSongModalProps = {
   isOpen: boolean;
-  isLoadingComments: boolean;
   handleClose: () => void;
+  songId: string | null;
 };
 
 export const SongModal = (props: TSongModalProps) => {
-  const { isOpen, handleClose, isLoadingComments } = props;
+  const { isOpen, handleClose, songId } = props;
   const classes = useStyles();
   const [inputValue, setInputValue] = useState<string>('');
   const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
   const [playListModal, setPlaylistModal] = useState<boolean>(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
+
+  useEffect(() => {
+    // call music by id
+    setIsLoadingComments(true);
+    setTimeout(() => {
+      setIsLoadingComments(false);
+    }, 2000);
+  }, [songId]);
 
   // Exemplo de dados de música
   const musicDetails = {
@@ -100,40 +105,10 @@ export const SongModal = (props: TSongModalProps) => {
       'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
     comments: [
       {
-        text: 'Great song!',
-        date: '2023-12-11',
-        user: {
-          name: 'John Doe',
-          avatar: 'avatar_url.jpg',
-        },
-        likesCount: 10,
-      },
-      {
-        text: 'Love it!',
-        date: '2023-12-12',
-        user: {
-          name: 'Jane Doe',
-          avatar: 'avatar_url.jpg',
-        },
-        likesCount: 0,
-      },
-      {
-        text: 'Great song!',
-        date: '2023-12-11',
-        user: {
-          name: 'John Doe',
-          avatar: 'avatar_url.jpg',
-        },
-        likesCount: 0,
-      },
-      {
-        text: 'Love it!',
-        date: '2023-12-12',
-        user: {
-          name: 'Jane Doe',
-          avatar: 'avatar_url.jpg',
-        },
-        likesCount: 0,
+        comment: 'Great song!',
+        t_date: 123412341234,
+        criador: 'Carlos Sabino',
+        rating: 5,
       },
     ] as TComment[],
   };
@@ -160,11 +135,90 @@ export const SongModal = (props: TSongModalProps) => {
             textAlign: 'justify',
             // minWidth: '900px',
             maxWidth: '800px',
+            minWidth: '800px',
+
             // overflow: 'hidden',
           }}
         >
           <Grid container spacing={2}>
             <Grid item xs={12} md={2}>
+              {isLoadingComments ? (
+                // Componente de esqueleto para simular o carregamento
+                <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
+              ) : (
+                // Quando não estiver carregando, exibe a imagem
+                <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
+              )}
+            </Grid>
+            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
+              {isLoadingComments ? (
+                // Componente de esqueleto para simular o carregamento
+                <>
+                  <Skeleton variant="text" height={40} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                </>
+              ) : (
+                // Quando não estiver carregando, exibe as informações
+                <>
+                  <Typography variant="h5" gutterBottom>
+                    {musicDetails.name}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    Álbum: {musicDetails.album}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    Duração: {musicDetails.duration}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <Typography variant="body1" color="textSecondary">
+                      Avaliação:
+                    </Typography>
+                    <Rating
+                      name="half-rating-read"
+                      defaultValue={musicDetails.rating}
+                      precision={0.5}
+                      size="small"
+                      readOnly
+                      sx={{
+                        '& .MuiRating-iconFilled': {
+                          color: '#ffF',
+                        },
+                        '& .MuiRating-iconHover': {
+                          color: '#999999',
+                        },
+                      }}
+                    />
+                  </Box>
+                </>
+              )}
+              {isLoadingComments ? (
+                // Componente de esqueleto para simular o carregamento
+                <Skeleton variant="rectangular" height={40} animation="wave" />
+              ) : (
+                // Quando não estiver carregando, exibe o botão de adicionar à playlist
+                <Box
+                  sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                  onClick={() => {
+                    setPlaylistModal(true);
+                  }}
+                >
+                  <AddToPlaylistIcon htmlColor="#999999" />
+                  <Typography variant="body1" color="textSecondary">
+                    Adicionar à playlist
+                  </Typography>
+                </Box>
+              )}
+            </Grid>
+
+            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
+              <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+            {/* <Grid item xs={12} md={2}>
               <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
             </Grid>
             <Grid item xs={12} md={9.5} className={classes.musicInfo}>
@@ -215,7 +269,7 @@ export const SongModal = (props: TSongModalProps) => {
               <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12}>
               <CommentsSection

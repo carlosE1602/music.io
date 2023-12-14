@@ -13,7 +13,6 @@ export const AddToPlaylistModal = (props: TProps) => {
   const onClick = (id: string) => {
     enqueueSnackbar('Música adicionada com sucesso');
     onClose();
-    console.log(id);
   };
   return (
     <Dialog open={isOpen} onClose={onClose}>
