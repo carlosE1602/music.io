@@ -132,11 +132,55 @@ module.exports = {
 
 		return response.json({ id });
 	},
+    // "id": "e4116c93",
+	// 			"writer": "e4116c93",
+	// 			"avaliadoid": "30SjdIdTMhBSe33nFnBFkC",
+	// 			"rating": 5,
+	// 			"t_date": 1702557779731,
+	// 			"comment": "Gostei!",
+	// 			"email": "henrique@gmailasdfas11234.com",
+	// 			"password": "-1146334401",
+	// 			"nickname": "henrique4d",
+	// 			"criador": "henrique4d"
     async list(request, response) {
-		const musics = await connection("musics")
+		const { id } = request.params;
+        if (id != undefined){
+            const avaliacoes = await connection("avaliacao")
+            .where("avaliadoid", id)
+            .join('users', 'users.id', 'avaliacao.writer')
+            .select(["avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador"])
+            
+            let musics = await connection("musics")
+			.where("id",id)
+            .first()
+            .select(["*"]);
+
+            const page = request.query.page != undefined ? request.query.page : 1;
+            const limit = request.query.limit != undefined ? request.query.limit : 10;
+        
+    
+            const startIndex = (page - 1) * limit;
+            const endIndex = page * limit;
+            const result = {
+                NumPag: Math.ceil(avaliacoes.length / limit),
+                NumElements: avaliacoes.length,
+                data: avaliacoes.slice(startIndex, endIndex),
+            };
+            musics["rating"] = 0
+            for (const element of avaliacoes){
+                musics["rating"] = musics["rating"] + element["rating"]
+                console.log(element)
+            }
+            musics["rating"]/= avaliacoes.length
+            musics["avaliacao"] = result;            
+    		return response.json(musics);
+        }
+        const musics = await connection("musics")
 			.select("*");
 		return response.json(musics);
 	},
+
+   
 
     async delete(request, response) {
 		const { id } = request.body;
