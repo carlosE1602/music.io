@@ -3,15 +3,24 @@ const crypto = require("crypto");
 const Hash = require("../utilities/Hash");
 
 
+async function insertGenre(id_user, id_genre){
+	await connection("user_genres").insert({
+		id_user,
+		id_genre
+	});
+}
+
 module.exports = {
 	async create(request, response) {
         const {
 			email,
 			password1,
 			password2,
-			nickname
+			nickname,
+			genres
 		} = request.body;
-        const id = crypto.randomBytes(4).toString("HEX");
+
+		const id = crypto.randomBytes(4).toString("HEX");
         const email_existene = await connection("users")
 			.where("email", email)
 			.first();
@@ -33,7 +42,13 @@ module.exports = {
             password,
 			nickname
 		};
+
 		await connection("users").insert(user);
+
+		for (const element of genres) {
+			await insertGenre(id,element)
+		}
+
 		return response.json({ id });
 	},
 
