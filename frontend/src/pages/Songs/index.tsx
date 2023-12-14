@@ -4,9 +4,11 @@ import { Box } from '@mui/material';
 
 import AddToPlaylistIcon from '@mui/icons-material/PlaylistAdd';
 import DetailsIcon from '@mui/icons-material/Info';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SongModal } from '@/components/SongModal';
 import { AddToPlaylistModal } from '@/components/AddToPlaylistModal';
+import Store from '@/store';
+import { SongService } from '@/services/SongService';
 
 const fixedSongs: TCard[] = [
   {
@@ -63,8 +65,11 @@ const fixedSongs: TCard[] = [
 export const Songs = () => {
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
   const [playListModalId, setPlaylistModalId] = useState<string>('');
-  const [songs, setSongs] = useState<TCard[]>(fixedSongs);
+  const [songs, setSongs] = useState<TCard[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [pageLimit, setPageLimit] = useState<number>(1);
+
+  const userData = Store.getUser();
 
   const SongActions: Actions[] = useMemo(
     () => [
@@ -85,25 +90,43 @@ export const Songs = () => {
     [songs],
   );
 
+  const getSongs = useCallback(
+    async (currentPage: number) => {
+      if (!userData) return [] as TCard[];
+      setIsLoading(true);
+      const response = await SongService.getSongRecommendations(userData.id, currentPage);
+      setIsLoading(false);
+      setPageLimit(response.NumPag);
+      return response?.data?.map((elem: any) => ({
+        title: elem.name,
+        id: elem.id,
+        imgUrl: elem.image,
+        label: elem.artist,
+      }));
+    },
+    [userData],
+  );
+
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1000);
+    const fetch = async () => {
+      const newData = await getSongs(1);
+      setSongs(newData);
+    };
+    fetch();
   }, []);
 
   const handleSearch = (key: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      if (!key) setSongs([]);
-      else setSongs(fixedSongs);
-      setIsLoading(false);
-    }, 1000);
+    // setIsLoading(true);
+    // setTimeout(() => {
+    //   if (!key) setSongs([]);
+    //   else setSongs(fixedSongs);
+    //   setIsLoading(false);
+    // }, 1000);
   };
 
-  const handleGetMore = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setSongs((prev) => [...prev, ...fixedSongs]);
-      setIsLoading(false);
-    }, 1000);
+  const handleGetMore = async (nextPage: number) => {
+    const newData = await getSongs(nextPage);
+    setSongs(newData);
   };
 
   return (
@@ -125,6 +148,7 @@ export const Songs = () => {
           cards={songs}
           actions={SongActions}
           onCardClick={(card: TCard) => setSelectedSong(card)}
+          pageLimit={pageLimit}
         />
       </Box>
     </Box>
