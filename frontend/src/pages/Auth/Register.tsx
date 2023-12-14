@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Paper, Typography, Button, Box, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
 
 import { useForm, Controller } from 'react-hook-form';
@@ -11,6 +11,7 @@ import logo from '@/assets/imgs/logo.png';
 import axios from 'axios';
 import { AuthService } from '@/services/AuthService';
 import Store from '@/store';
+import { GenreService } from '@/services/GenreService';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -92,7 +93,10 @@ export const Register = () => {
               return true;
             })
         : yup.date(),
-    musicGenres: activeStep === 2 ? yup.array().min(1, 'Selecione pelo menos um gênero de música') : yup.array(),
+    musicGenres:
+      activeStep === 2
+        ? yup.array().min(1, 'Selecione pelo menos um gênero de música').max(3, 'Selecione no máximo 3 gêneros')
+        : yup.array(),
   });
 
   const {
@@ -106,6 +110,21 @@ export const Register = () => {
       birthday: new Date(),
     },
   });
+
+  const [genres, setGenres] = useState<{ id: string; name: string }[]>();
+
+  useEffect(() => {
+    const getGenres = async () => {
+      try {
+        const data = await GenreService.getGenres();
+        setGenres(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getGenres();
+  }, []);
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -121,7 +140,12 @@ export const Register = () => {
       setIsLoadingSubmit(true);
 
       try {
-        const response = await AuthService.createUser(data?.email ?? '', data?.password ?? '', data?.nickname ?? '');
+        const response = await AuthService.createUser(
+          data?.email ?? '',
+          data?.password ?? '',
+          data?.nickname ?? '',
+          data?.musicGenres ?? [],
+        );
         Store.saveUser({ username: response.nickname, email: response.email, id: response.id });
         location.assign('/');
         setMessageError(null);
@@ -133,8 +157,6 @@ export const Register = () => {
       }
     } else handleNext();
   };
-
-  console.log(messageError);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -240,13 +262,17 @@ export const Register = () => {
                       id="userRoles"
                       variant="outlined"
                       label="Selecione seu gênero favorito"
+                      error={!!errors.musicGenres}
+                      helperText={errors.musicGenres?.message}
                       SelectProps={{
                         multiple: true,
                       }}
                     >
-                      <MenuItem value="admin">Pop</MenuItem>
-                      <MenuItem value="user1">Rock</MenuItem>
-                      <MenuItem value="user2">Sertanejo</MenuItem>
+                      {genres?.map((elem) => (
+                        <MenuItem value={elem.id} key={elem.id}>
+                          {elem.name}
+                        </MenuItem>
+                      ))}
                     </TextField>
                   )}
                 />
