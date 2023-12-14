@@ -28,5 +28,5 @@ dist-ssr
 .env.production
 
 /node_modules
-/src/database/db.sqlite
+#/src/database/db.sqlite
 .env
