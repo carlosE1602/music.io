@@ -19,6 +19,9 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { CommentsSection } from '../CommentsSection';
 import { AddToPlaylistModal } from '../AddToPlaylistModal';
+import { SongService, TPagSongDetail } from '@/services/SongService';
+import { ReviewService } from '@/services/ReviewService';
+import Store from '@/store';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -86,32 +89,24 @@ export const SongModal = (props: TSongModalProps) => {
   const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
   const [playListModal, setPlaylistModal] = useState<boolean>(false);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
+  const [songDetail, setSongDetail] = useState<TPagSongDetail>();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const userData = Store.getUser();
+  const fetchSong = async (id: string, page = 1) => {
+    setIsLoadingComments(true);
+
+    const data = await SongService.getSong(id, page);
+    console.log(data?.rating);
+    setSongDetail(data);
+    setIsLoadingComments(false);
+  };
 
   useEffect(() => {
     // call music by id
-    setIsLoadingComments(true);
-    setTimeout(() => {
-      setIsLoadingComments(false);
-    }, 2000);
-  }, [songId]);
+    if (!songId) return;
 
-  // Exemplo de dados de música
-  const musicDetails = {
-    name: 'Song Name',
-    album: 'Album Name',
-    duration: '3:30',
-    rating: 4.5,
-    albumImage:
-      'https://lh3.googleusercontent.com/tntNX15loRQ3Bqmw4MJunOy_lC43qU2Dqu3eBGWBSbQodGgzIDbnNDLtHCYpsKggh592RmaHnDdSacEe=w225-h225-l90-rj',
-    comments: [
-      {
-        comment: 'Great song!',
-        t_date: 123412341234,
-        criador: 'Carlos Sabino',
-        rating: 5,
-      },
-    ] as TComment[],
-  };
+    fetchSong(songId);
+  }, [songId]);
 
   const handleFilterMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setFilterMenuAnchor(event.currentTarget);
@@ -120,6 +115,20 @@ export const SongModal = (props: TSongModalProps) => {
   const handleFilterMenuClose = (option: 'POPULAR' | 'RECENT') => {
     setFilterMenuAnchor(null);
     setSelectedFilter(option);
+  };
+
+  const handleSubmitReview = async (rating: number | null, commentText: string) => {
+    if (!userData) return false;
+    console.log(rating, commentText);
+
+    try {
+      const data = ReviewService.createReview(userData.id, songId ?? '', rating ?? 0, commentText);
+      fetchSong(songId ?? '');
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   };
 
   return (
@@ -147,7 +156,7 @@ export const SongModal = (props: TSongModalProps) => {
                 <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
               ) : (
                 // Quando não estiver carregando, exibe a imagem
-                <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
+                <img src={songDetail?.imageurl} alt="Album Cover" className={classes.albumImage} />
               )}
             </Grid>
             <Grid item xs={12} md={9.5} className={classes.musicInfo}>
@@ -164,13 +173,13 @@ export const SongModal = (props: TSongModalProps) => {
                 // Quando não estiver carregando, exibe as informações
                 <>
                   <Typography variant="h5" gutterBottom>
-                    {musicDetails.name}
+                    {songDetail?.name}
                   </Typography>
                   <Typography variant="body1" color="textSecondary">
-                    Álbum: {musicDetails.album}
+                    Álbum: {songDetail?.album}
                   </Typography>
                   <Typography variant="body1" color="textSecondary">
-                    Duração: {musicDetails.duration}
+                    Duração: {songDetail?.duration}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                     <Typography variant="body1" color="textSecondary">
@@ -178,7 +187,7 @@ export const SongModal = (props: TSongModalProps) => {
                     </Typography>
                     <Rating
                       name="half-rating-read"
-                      defaultValue={musicDetails.rating}
+                      defaultValue={+(songDetail?.rating?.toFixed(0) ?? 0)}
                       precision={0.5}
                       size="small"
                       readOnly
@@ -214,62 +223,17 @@ export const SongModal = (props: TSongModalProps) => {
             </Grid>
 
             <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-              <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
-                <CloseIcon />
-              </IconButton>
-            </Grid>
-            {/* <Grid item xs={12} md={2}>
-              <img src={musicDetails.albumImage} alt="Album Cover" className={classes.albumImage} />
-            </Grid>
-            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
-              <Typography variant="h5" gutterBottom>
-                {musicDetails.name}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Álbum: {musicDetails.album}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Duração: {musicDetails.duration}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography variant="body1" color="textSecondary">
-                  Avaliação:
-                </Typography>
-                <Rating
-                  name="half-rating-read"
-                  defaultValue={musicDetails.rating}
-                  precision={0.5}
-                  size="small"
-                  readOnly
-                  sx={{
-                    '& .MuiRating-iconFilled': {
-                      color: '#ffF',
-                    },
-                    '& .MuiRating-iconHover': {
-                      color: '#999999',
-                    },
-                  }}
-                />
-              </Box>
-
-              <Box
-                sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+              <IconButton
+                sx={{ padding: '0px' }}
                 onClick={() => {
-                  setPlaylistModal(true);
+                  setIsLoadingComments(true);
+                  setSongDetail(undefined);
+                  handleClose();
                 }}
               >
-                <AddToPlaylistIcon htmlColor="#999999" />
-                <Typography variant="body1" color="textSecondary">
-                  Adicionar à playlist
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-              <IconButton sx={{ padding: '0px' }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
-            </Grid> */}
+            </Grid>
 
             <Grid item xs={12}>
               <CommentsSection
@@ -281,7 +245,8 @@ export const SongModal = (props: TSongModalProps) => {
                 inputValue={inputValue}
                 setInputValue={setInputValue}
                 isLoadingComments={isLoadingComments}
-                musicDetails={musicDetails}
+                musicDetails={songDetail?.avaliacao}
+                handleReview={handleSubmitReview}
               />
             </Grid>
           </Grid>

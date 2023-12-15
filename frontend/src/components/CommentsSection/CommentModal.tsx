@@ -1,4 +1,14 @@
-import { Box, Button, Dialog, DialogContent, IconButton, Modal, Rating, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Modal,
+  Rating,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -6,16 +16,29 @@ export const CommentModal = ({
   open,
   onClose,
   commentText,
+  handleReview,
 }: {
   open: boolean;
   onClose: () => void;
   commentText: string;
+  handleReview?: (rating: number | null, commentText: string) => boolean;
 }) => {
   const [rating, setRating] = useState<number | null>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleRatingChange = (event: any, newValue: number | null) => {
     if (newValue == null) setRating(null);
     setRating(+event.target.value);
+  };
+
+  const handleSubmit = () => {
+    setIsLoading(true);
+    if (handleReview) {
+      const isOk = handleReview(rating, commentText);
+      if (isOk) onClose();
+      console.log(isOk);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,8 +79,8 @@ export const CommentModal = ({
         </Typography>
         <Box sx={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
           <Button onClick={onClose}>Fechar</Button>
-          <Button variant="contained" onClick={onClose}>
-            Comentar
+          <Button variant="contained" onClick={handleSubmit}>
+            {isLoading ? <CircularProgress size="25px" /> : 'Comentar'}
           </Button>
         </Box>
       </DialogContent>

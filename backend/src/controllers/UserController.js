@@ -49,7 +49,7 @@ module.exports = {
 			await insertGenre(id,element)
 		}
 
-		return response.json({ id });
+		return response.json({ id, email, nickname });
 	},
 
     async list(request, response) {

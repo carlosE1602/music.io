@@ -68,8 +68,9 @@ export const CommentsSection = (props: any) => {
     setInputValue,
     isLoadingComments,
     musicDetails,
+    handleReview,
   } = props;
-
+  console.log(musicDetails);
   const classes = useStyles();
   const [isModalOpen, setModalOpen] = useState(false);
   const handleCommentSubmit = () => {
@@ -83,12 +84,14 @@ export const CommentsSection = (props: any) => {
     setInputValue('');
   };
 
+  console.log(musicDetails);
+
   return (
     <Grid item xs={12} overflow="auto" width="100%">
       <div className={classes.commentsSection}>
         <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           <Typography variant="h6">Comentários</Typography>
-          <Box
+          {/* <Box
             sx={{ display: 'flex', gap: '4px', cursor: 'pointer', alignItems: 'center' }}
             onClick={handleFilterMenuOpen}
           >
@@ -106,7 +109,7 @@ export const CommentsSection = (props: any) => {
             <MenuItem onClick={() => handleFilterMenuClose('RECENT')} sx={{ display: 'flex', gap: '4px' }}>
               {selectedFilter === 'RECENT' ? <CheckIcon fontSize="small" /> : <> </>} Mais Recentes
             </MenuItem>
-          </Menu>
+          </Menu> */}
         </Box>
         <div className={classes.inputComment}>
           <TextField
@@ -123,8 +126,8 @@ export const CommentsSection = (props: any) => {
         </div>
 
         <div>
-          {!isLoadingComments
-            ? musicDetails.comments.map((comment: TComment, index: number) => (
+          {!isLoadingComments && musicDetails?.data
+            ? musicDetails?.data?.map((comment: TComment, index: number) => (
                 <div key={index} className={classes.comment}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -160,7 +163,7 @@ export const CommentsSection = (props: any) => {
                         }}
                       />
                       <Typography variant="body2" color="textSecondary">
-                        {comment?.t_date}
+                        {new Date(comment?.t_date ?? 0).toLocaleDateString('pt-BR')}
                       </Typography>
                     </div>
                     <Typography variant="body1">{comment?.comment}</Typography>
@@ -192,20 +195,25 @@ export const CommentsSection = (props: any) => {
                   </Box>
                 </div>
               ))}
-          {!isLoadingComments && musicDetails.comments.length > 0 && (
-            <div className={classes.moreComments} onClick={() => {}}>
+          {/* {!isLoadingComments && musicDetails?.NumElements > 0 && (
+            <div className={classes.moreComments} onClick={() => handleGetComments && handleGetComments()}>
               <AddIcon />
               <Typography variant="body2">Carregar mais comentários</Typography>
             </div>
-          )}
+          )} */}
 
-          {!isLoadingComments && musicDetails.comments.length === 0 && (
+          {!isLoadingComments && musicDetails?.NumElements === 0 && (
             <div>
               <Typography variant="body1">Não há comentários até o momento...</Typography>
             </div>
           )}
         </div>
-        <CommentModal open={isModalOpen} onClose={handleCloseModal} commentText={inputValue} />
+        <CommentModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          commentText={inputValue}
+          handleReview={handleReview}
+        />
       </div>
     </Grid>
   );

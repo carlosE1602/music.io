@@ -156,7 +156,7 @@ module.exports = {
             .join('artists', 'musics.artistid', 'artists.id')
             .join('genres', 'musics.genreid', 'genres.id')
             .first()
-            .select(["*", "musics.id as id", "albuns.name as album", "artists.name as artist", "genres.name as genre"]);
+            .select(["*", "musics.name as name", "musics.id as id", "albuns.name as album", "artists.name as artist", "genres.name as genre"]);
 
             const page = request.query.page != undefined ? request.query.page : 1;
             const limit = request.query.limit != undefined ? request.query.limit : 10;
