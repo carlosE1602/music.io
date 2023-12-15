@@ -8,6 +8,7 @@ const MusicController = require('./controllers/MusicController')
 const ArtistController = require('./controllers/ArtistController')
 const AlbumController = require('./controllers/AlbumController')
 const AvaliacaoController = require('./controllers/AvaliacaoController')
+const PlaylistController = require('./controllers/PlaylistController')
 
 
 //USERS
@@ -53,13 +54,18 @@ routes.delete('/album', AlbumController.delete);
 routes.post('/avaliacao', AvaliacaoController.create);
 routes.get('/avaliacao', AvaliacaoController.list);
 routes.get('/avaliacao/:id_music', AvaliacaoController.list);
-
 routes.delete('/avaliacao', AvaliacaoController.delete);
 
 
+//PLAYLIST
+routes.post('/playlist', PlaylistController.create);
+routes.get('/playlist', PlaylistController.list);
+routes.delete('/playlist', PlaylistController.delete);
+routes.get('/playlist/:userid/:playlistid/:musicid', PlaylistController.addmusic);
+routes.delete('/playlist/:userid/:playlistid/:musicid', PlaylistController.deletemusic);
+
 
 routes.get('/recomendation/:id_user', RecomendationController.recomendation);
-
 
 
 module.exports = routes;
