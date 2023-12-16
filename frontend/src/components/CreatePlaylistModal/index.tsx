@@ -5,14 +5,17 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { CircularProgress } from '@mui/material';
 
 const CreatePlaylistModal = ({
   isOpen,
   onSubmit,
   onClose,
+  isLoading,
 }: {
   isOpen: boolean;
-  onSubmit: ({ name, description }: { name: string; description: string }) => void;
+  isLoading: boolean;
+  onSubmit: (name: string, description: string) => Promise<boolean>;
   onClose: () => void;
 }) => {
   const [playlistName, setPlaylistName] = useState('');
@@ -26,9 +29,9 @@ const CreatePlaylistModal = ({
     setPlaylistDescription(e.target.value);
   };
 
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     // Chama a função onSubmit passando os dados da playlist
-    onSubmit({ name: playlistName, description: playlistDescription });
+    await onSubmit(playlistName, playlistDescription);
 
     // Fecha o dialog após a criação
     onClose();
@@ -59,9 +62,16 @@ const CreatePlaylistModal = ({
           margin="normal"
         />
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ padding: '20px' }}>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleCreatePlaylist}>Criar Playlist</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={isLoading || !playlistName || !playlistDescription}
+          onClick={handleCreatePlaylist}
+        >
+          {isLoading ? <CircularProgress size="25px" /> : 'Criar Playlist'}
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -24,7 +24,7 @@ const App = () => {
     >
       <BrowserRouter>
         <CssBaseline />
-        <SnackbarProvider>
+        <SnackbarProvider autoHideDuration={2000}>
           <Routing />
         </SnackbarProvider>
       </BrowserRouter>

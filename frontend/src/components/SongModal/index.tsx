@@ -252,7 +252,7 @@ export const SongModal = (props: TSongModalProps) => {
           </Grid>
         </DialogContent>
       </Dialog>
-      <AddToPlaylistModal isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
+      <AddToPlaylistModal musicid={songId ?? ''} isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
     </>
   );
 };

@@ -27,7 +27,10 @@ export const Songs = () => {
       {
         label: 'Adicionar à Playlist',
         icon: <AddToPlaylistIcon sx={{ marginRight: 1 }} />,
-        onClick: (id) => setPlaylistModalId(id),
+        onClick: (id) => {
+          setPlaylistModalId(id);
+          // setSelectedSongId(id)
+        },
       },
       {
         label: 'Ver mais detalhes',
@@ -92,7 +95,11 @@ export const Songs = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header searchFunction={handleSearch} selectedGenreId={selectedGenreId} />
 
-      <AddToPlaylistModal isOpen={!!playListModalId} onClose={() => setPlaylistModalId('')} />
+      <AddToPlaylistModal
+        musicid={playListModalId ?? ''}
+        isOpen={!!playListModalId}
+        onClose={() => setPlaylistModalId('')}
+      />
       <SongModal isOpen={!!selectedSongId} handleClose={() => setSelectedSongId(null)} songId={selectedSongId} />
       <Box
         sx={{
@@ -103,7 +110,6 @@ export const Songs = () => {
         <CardList
           isLoading={isLoading}
           onLoadContent={handleGetMore}
-          title="Músicas recomendadas"
           cards={songs}
           actions={SongActions}
           onCardClick={(card: TCard) => setSelectedSongId(card.id)}

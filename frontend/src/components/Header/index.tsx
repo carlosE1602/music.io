@@ -6,16 +6,18 @@ import CreatePlaylistModal from '../CreatePlaylistModal';
 import Store from '@/store';
 import { GenreService } from '@/services/GenreService';
 import { string } from 'yup';
+import { PlaylistService } from '@/services/PlaylistService';
+import { enqueueSnackbar } from 'notistack';
 
 type THeaderProps = {
   showSearchBar?: boolean;
   searchFunction?: (key: string, genre?: string) => void;
   selectedGenreId?: string;
+  hideGenreFilter?: boolean;
 };
 
 function Header(props: THeaderProps) {
-  const { showSearchBar = true, searchFunction, selectedGenreId } = props;
-  // Lógica para o menu do avatar
+  const { showSearchBar = true, searchFunction, selectedGenreId, hideGenreFilter = false } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -38,9 +40,8 @@ function Header(props: THeaderProps) {
         console.error(err);
       }
     };
-
-    getGenres();
-  }, []);
+    if (!hideGenreFilter) getGenres();
+  }, [hideGenreFilter]);
 
   // Função para deslogar o usuário (substitua pelo seu próprio método)
   const handleLogout = () => {
@@ -66,11 +67,6 @@ function Header(props: THeaderProps) {
 
   return (
     <AppBar position="static" sx={{ display: 'flex' }}>
-      <CreatePlaylistModal
-        isOpen={creationModal}
-        onClose={() => setCreationModal(false)}
-        onSubmit={(props: { name: string; description: string }) => {}}
-      />
       <Toolbar>
         <Box sx={{ display: 'flex', gap: '24px' }}>
           <Typography variant="CTA2" color="#FFF" sx={{ cursor: 'pointer' }} onClick={() => location.assign('/')}>
@@ -92,15 +88,8 @@ function Header(props: THeaderProps) {
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            <MenuItem
-              onClick={() => {
-                closePlaylistMenu();
-                setCreationModal(true);
-              }}
-            >
-              Criar Nova Playlist
-            </MenuItem>
-            <MenuItem onClick={() => location.assign('/playlists')}>Ir para Playlists</MenuItem>
+            <MenuItem onClick={() => location.assign('/my-playlists')}>Minhas Playlists</MenuItem>
+            <MenuItem onClick={() => location.assign('/playlists')}>Buscar Playlists</MenuItem>
           </Menu>
         </Box>
         <div style={{ flexGrow: 1, padding: '0px 24px' }}>
@@ -141,42 +130,44 @@ function Header(props: THeaderProps) {
           <MenuItem onClick={handleLogout}>Sair</MenuItem>
         </Menu>
       </Toolbar>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-start',
-          padding: '8px 24px',
-          width: '100%',
-          overflowX: 'auto',
-          boxSizing: 'border-box',
-          scrollbarWidth: 'thin',
-          msOverflowStyle: 'none',
-          '&::-webkit-scrollbar': {
-            height: '8px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(255, 255, 255, 0.5)', // Cor da thumb
-            borderRadius: '4px', // Borda arredondada
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cor de fundo da barra de rolagem
-            borderRadius: '4px', // Borda arredondada
-          },
-        }}
-      >
-        {genres &&
-          genres.map((genre) => {
-            return (
-              <Chip
-                key={genre.id}
-                label={genre.name}
-                variant={selectedGenreId === genre.id ? 'filled' : 'outlined'}
-                onClick={() => handleGenreChange(genre.id)}
-                sx={{ marginRight: '8px' }}
-              />
-            );
-          })}
-      </Box>
+      {!hideGenreFilter && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            padding: '8px 24px',
+            width: '100%',
+            overflowX: 'auto',
+            boxSizing: 'border-box',
+            scrollbarWidth: 'thin',
+            msOverflowStyle: 'none',
+            '&::-webkit-scrollbar': {
+              height: '8px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(255, 255, 255, 0.5)', // Cor da thumb
+              borderRadius: '4px', // Borda arredondada
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cor de fundo da barra de rolagem
+              borderRadius: '4px', // Borda arredondada
+            },
+          }}
+        >
+          {genres &&
+            genres.map((genre) => {
+              return (
+                <Chip
+                  key={genre.id}
+                  label={genre.name}
+                  variant={selectedGenreId === genre.id ? 'filled' : 'outlined'}
+                  onClick={() => handleGenreChange(genre.id)}
+                  sx={{ marginRight: '8px' }}
+                />
+              );
+            })}
+        </Box>
+      )}
     </AppBar>
   );
 }

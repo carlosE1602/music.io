@@ -6,6 +6,7 @@ import { Playlists } from '@/pages/Playlists';
 import { PlaylistDetail } from '@/pages/PlaylistDetail';
 import Store from '@/store';
 import NotFoundPage from '@/components/PageNotFound';
+import { MyPlaylists } from '@/pages/MyPlaylists';
 
 const PrivateRoute = ({
   element,
@@ -32,6 +33,8 @@ const Routing = () => {
       {/* Rotas protegidas */}
       <Route path="/" element={<PrivateRoute element={<Songs />} authenticated={!!userData} />} />
       <Route path="/playlists" element={<PrivateRoute element={<Playlists />} authenticated={!!userData} />} />
+      <Route path="/my-playlists" element={<PrivateRoute element={<MyPlaylists />} authenticated={!!userData} />} />
+
       <Route
         path="/playlists/detail/:id"
         element={<PrivateRoute element={<PlaylistDetail />} authenticated={!!userData} />}

@@ -15,6 +15,7 @@ import { makeStyles } from '@mui/styles';
 import { useState } from 'react';
 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -31,9 +32,14 @@ const useStyles = makeStyles((theme: any) => ({
     width: 225,
     margin: theme.spacing(1),
     cursor: 'pointer',
+    border: '1px solid #FFFFFF10',
   },
   media: {
     height: 225,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(40,40,40)',
   },
 }));
 
@@ -51,7 +57,7 @@ export type TCard = {
 };
 
 type TCardListProps = {
-  title: string;
+  emptyMessage?: string;
   isLoading: boolean;
   cards: TCard[];
   actions: Actions[];
@@ -62,17 +68,15 @@ type TCardListProps = {
 };
 
 export const CardList = (props: TCardListProps) => {
-  const { title, isLoading, cards, actions, onCardClick, onLoadContent, pageLimit = 1, currentPage = 1 } = props;
+  const { emptyMessage, isLoading, cards, actions, onCardClick, onLoadContent, pageLimit = 1, currentPage = 1 } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [clickedCard, setClickedCard] = useState<TCard>();
-  // const [currentPage, setCurrentPage] = useState<number>(1);
 
   const classes = useStyles();
 
   const handleMenuClick = (event: any, song: any) => {
     setAnchorEl(event.currentTarget);
     setClickedCard(song);
-    // You can use the 'song' object to perform actions related to the selected song
   };
 
   const handleMenuClose = () => {
@@ -95,9 +99,11 @@ export const CardList = (props: TCardListProps) => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h4" className={classes.title}>
-        {!isLoading && cards.length === 0 ? 'Não há resultados para sua busca...' : title}
-      </Typography>
+      {!isLoading && cards.length === 0 && (
+        <Typography variant="h4" className={classes.title}>
+          {emptyMessage ?? 'Não há resultados para sua busca...'}
+        </Typography>
+      )}
       <Grid container spacing={2} justifyContent="center" maxWidth="1366px" margin="0 auto">
         {isLoading &&
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => (
@@ -111,7 +117,13 @@ export const CardList = (props: TCardListProps) => {
               return (
                 <Grid item key={card.id}>
                   <Card className={classes.card} onClick={(e) => onCardClick(card)}>
-                    <CardMedia className={classes.media} image={card.imgUrl} title={card.title} />
+                    {!card.imgUrl ? (
+                      <Box className={classes.media}>
+                        <AudiotrackIcon fontSize="large" />
+                      </Box>
+                    ) : (
+                      <CardMedia className={classes.media} image={card.imgUrl} title={card.title} />
+                    )}
                     <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <Typography
