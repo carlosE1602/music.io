@@ -76,6 +76,20 @@ export const MyPlaylists = () => {
         sx={{
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 64px)',
+
+          scrollbarWidth: 'thin',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': {
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(255, 255, 255, 0.5)', // Cor da thumb
+            borderRadius: '4px', // Borda arredondada
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cor de fundo da barra de rolagem
+            borderRadius: '4px', // Borda arredondada
+          },
         }}
       >
         <Box
@@ -83,7 +97,7 @@ export const MyPlaylists = () => {
             display: 'flex',
             gap: '32px',
             justifyContent: 'space-between',
-            padding: '16px',
+            padding: '32px',
             maxWidth: '1366px',
             margin: '0 auto',
           }}

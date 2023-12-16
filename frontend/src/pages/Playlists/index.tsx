@@ -38,6 +38,20 @@ export const Playlists = () => {
         sx={{
           overflowY: 'auto',
           maxHeight: 'calc(100vh - 64px)',
+          scrollbarWidth: 'thin',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': {
+            height: '6px',
+            width: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(255, 255, 255, 0.5)', // Cor da thumb
+            borderRadius: '4px', // Borda arredondada
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cor de fundo da barra de rolagem
+            borderRadius: '4px', // Borda arredondada
+          },
         }}
       >
         <CardList

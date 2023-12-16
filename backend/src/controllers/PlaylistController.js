@@ -111,12 +111,16 @@ module.exports = {
 			return response.status(409).json({ error: "Usuario nao e o dono da playlist" });	
 		}
 
+ 
 		const music = await connection("musics")
-		.where("id", musicid)
+		.join("albuns", "musics.albumid", "albuns.id")
+		.where("musics.id", musicid)
 		.first();
 		if (music == undefined) {
 			return response.status(409).json({ error: "Musica nao encontrada" });
 		}
+
+
 
 		const existe = await connection("playlist_music")
 		.where("musicid", musicid)
@@ -127,7 +131,15 @@ module.exports = {
 			return response.status(409).json({ error: "Musica ja na playlist" });
 		}
 		
+		try{
+			if(!playlist["image"]){
+				await connection("playlist").where({ id: playlist.id }).update({ image: music["imageurl"] });
+			}
+		} catch(err){
+			console.log(err)
+		}
 
+		
 		let obj = {
 			musicid,
 			playlistid
