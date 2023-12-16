@@ -99,9 +99,8 @@ module.exports = {
 	},
 
 	async addmusic(request, response) {
-		const { userid, playlistid, musicid } = request.params;
+		const { userid, playlistid, musicid } = request.body;
 		
-
 		const playlist = await connection("playlist")
 		.where("id", playlistid)
 		.first();
@@ -127,13 +126,13 @@ module.exports = {
 		if (existe != undefined) {
 			return response.status(409).json({ error: "Musica ja na playlist" });
 		}
-
+		
 
 		let obj = {
 			musicid,
 			playlistid
 		}
-		
+
 		await connection("playlist_music").insert(obj);
 
 		return response.json(1)
