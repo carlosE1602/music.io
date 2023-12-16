@@ -11,7 +11,8 @@ module.exports = {
         let {
             donoid,
             name,
-            image
+            image,
+						descricao
 		} = request.body;
 
         const id = crypto.randomBytes(4).toString("HEX");
@@ -21,6 +22,7 @@ module.exports = {
 			donoid,
             name,
             image,
+						descricao,
 		};
         
 		await connection("playlist").insert(playlist);
