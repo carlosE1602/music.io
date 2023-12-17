@@ -79,7 +79,7 @@ export const CommentModal = ({
         </Typography>
         <Box sx={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
           <Button onClick={onClose}>Fechar</Button>
-          <Button variant="contained" onClick={handleSubmit}>
+          <Button variant="contained" onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? <CircularProgress size="25px" /> : 'Comentar'}
           </Button>
         </Box>

@@ -62,7 +62,7 @@ routes.post('/playlist', PlaylistController.create);
 routes.get('/playlist', PlaylistController.list);
 routes.delete('/playlist', PlaylistController.delete);
 routes.post('/playlist/add-song', PlaylistController.addmusic);
-routes.delete('/playlist/:userid/:playlistid/:musicid', PlaylistController.deletemusic);
+routes.delete('/playlist/remove-song', PlaylistController.deletemusic);
 
 
 routes.get('/recomendation/:id_user', RecomendationController.recomendation);

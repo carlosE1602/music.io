@@ -22,6 +22,7 @@ import { AddToPlaylistModal } from '../AddToPlaylistModal';
 import { SongService, TPagSongDetail } from '@/services/SongService';
 import { ReviewService } from '@/services/ReviewService';
 import Store from '@/store';
+import { segundosParaMinutos } from '@/utils/format';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -93,15 +94,17 @@ export const SongModal = (props: TSongModalProps) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const userData = Store.getUser();
   const fetchSong = async (id: string, page = 1) => {
+    console.log('eueueu');
     setIsLoadingComments(true);
 
     const data = await SongService.getSong(id, page);
-    console.log(data?.rating);
+    console.log(data);
     setSongDetail(data);
     setIsLoadingComments(false);
   };
 
   useEffect(() => {
+    console.log('entrando...');
     // call music by id
     if (!songId) return;
 
@@ -122,7 +125,7 @@ export const SongModal = (props: TSongModalProps) => {
     console.log(rating, commentText);
 
     try {
-      const data = ReviewService.createReview(userData.id, songId ?? '', rating ?? 0, commentText);
+      const data = await ReviewService.createReview(userData.id, songId ?? '', rating ?? 0, commentText);
       fetchSong(songId ?? '');
       return true;
     } catch (err) {
@@ -131,128 +134,130 @@ export const SongModal = (props: TSongModalProps) => {
     }
   };
 
-  return (
-    <>
-      <Dialog maxWidth="md" open={isOpen} onClose={handleClose}>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-            padding: '20px',
-            borderRadius: '10px',
-            textAlign: 'justify',
-            // minWidth: '900px',
-            maxWidth: '800px',
-            minWidth: '800px',
+  if (songDetail)
+    return (
+      <>
+        <Dialog maxWidth="md" open={isOpen} onClose={handleClose}>
+          <DialogContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              padding: '20px',
+              borderRadius: '10px',
+              textAlign: 'justify',
+              // minWidth: '900px',
+              maxWidth: '800px',
+              minWidth: '800px',
 
-            // overflow: 'hidden',
-          }}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={2}>
-              {isLoadingComments ? (
-                // Componente de esqueleto para simular o carregamento
-                <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
-              ) : (
-                // Quando não estiver carregando, exibe a imagem
-                <img src={songDetail?.imageurl} alt="Album Cover" className={classes.albumImage} />
-              )}
-            </Grid>
-            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
-              {isLoadingComments ? (
-                // Componente de esqueleto para simular o carregamento
-                <>
-                  <Skeleton variant="text" height={40} width={150} animation="wave" />
-                  <Skeleton variant="text" height={20} width={150} animation="wave" />
-                  <Skeleton variant="text" height={20} width={150} animation="wave" />
-                  <Skeleton variant="text" height={20} width={150} animation="wave" />
-                  <Skeleton variant="text" height={20} width={150} animation="wave" />
-                </>
-              ) : (
-                // Quando não estiver carregando, exibe as informações
-                <>
-                  <Typography variant="h5" gutterBottom>
-                    {songDetail?.name}
-                  </Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    Álbum: {songDetail?.album}
-                  </Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    Duração: {songDetail?.duration}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    <Typography variant="body1" color="textSecondary">
-                      Avaliação:
+              // overflow: 'hidden',
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                {isLoadingComments ? (
+                  // Componente de esqueleto para simular o carregamento
+                  <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
+                ) : (
+                  // Quando não estiver carregando, exibe a imagem
+                  <img src={songDetail?.imageurl} alt="Album Cover" className={classes.albumImage} />
+                )}
+              </Grid>
+              <Grid item xs={12} md={9.5} className={classes.musicInfo}>
+                {isLoadingComments ? (
+                  // Componente de esqueleto para simular o carregamento
+                  <>
+                    <Skeleton variant="text" height={40} width={150} animation="wave" />
+                    <Skeleton variant="text" height={20} width={150} animation="wave" />
+                    <Skeleton variant="text" height={20} width={150} animation="wave" />
+                    <Skeleton variant="text" height={20} width={150} animation="wave" />
+                    <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  </>
+                ) : (
+                  // Quando não estiver carregando, exibe as informações
+                  <>
+                    <Typography variant="h5" gutterBottom>
+                      {songDetail?.name}
                     </Typography>
-                    <Rating
-                      name="half-rating-read"
-                      defaultValue={+(songDetail?.rating?.toFixed(0) ?? 0)}
-                      precision={0.5}
-                      size="small"
-                      readOnly
-                      sx={{
-                        '& .MuiRating-iconFilled': {
-                          color: '#ffF',
-                        },
-                        '& .MuiRating-iconHover': {
-                          color: '#999999',
-                        },
-                      }}
-                    />
+                    <Typography variant="body1" color="textSecondary">
+                      Álbum: {songDetail?.album}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      Duração: {segundosParaMinutos(songDetail?.duration ?? 0)}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      <Typography variant="body1" color="textSecondary">
+                        Avaliação:
+                      </Typography>
+                      <Rating
+                        name="half-rating-read"
+                        defaultValue={+(songDetail?.rating?.toFixed(0) ?? 0)}
+                        precision={0.5}
+                        size="small"
+                        readOnly
+                        sx={{
+                          '& .MuiRating-iconFilled': {
+                            color: '#ffF',
+                          },
+                          '& .MuiRating-iconHover': {
+                            color: '#999999',
+                          },
+                        }}
+                      />
+                    </Box>
+                  </>
+                )}
+                {isLoadingComments ? (
+                  // Componente de esqueleto para simular o carregamento
+                  <Skeleton variant="rectangular" height={40} animation="wave" />
+                ) : (
+                  // Quando não estiver carregando, exibe o botão de adicionar à playlist
+                  <Box
+                    sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                    onClick={() => {
+                      setPlaylistModal(true);
+                    }}
+                  >
+                    <AddToPlaylistIcon htmlColor="#999999" />
+                    <Typography variant="body1" color="textSecondary">
+                      Adicionar à playlist
+                    </Typography>
                   </Box>
-                </>
-              )}
-              {isLoadingComments ? (
-                // Componente de esqueleto para simular o carregamento
-                <Skeleton variant="rectangular" height={40} animation="wave" />
-              ) : (
-                // Quando não estiver carregando, exibe o botão de adicionar à playlist
-                <Box
-                  sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={0.5} className={classes.musicInfo}>
+                <IconButton
+                  sx={{ padding: '0px' }}
                   onClick={() => {
-                    setPlaylistModal(true);
+                    setIsLoadingComments(true);
+                    setSongDetail(undefined);
+                    handleClose();
                   }}
                 >
-                  <AddToPlaylistIcon htmlColor="#999999" />
-                  <Typography variant="body1" color="textSecondary">
-                    Adicionar à playlist
-                  </Typography>
-                </Box>
-              )}
-            </Grid>
+                  <CloseIcon />
+                </IconButton>
+              </Grid>
 
-            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-              <IconButton
-                sx={{ padding: '0px' }}
-                onClick={() => {
-                  setIsLoadingComments(true);
-                  setSongDetail(undefined);
-                  handleClose();
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
+              <Grid item xs={12}>
+                <CommentsSection
+                  // classes={classes}
+                  handleFilterMenuOpen={handleFilterMenuOpen}
+                  handleFilterMenuClose={handleFilterMenuClose}
+                  filterMenuAnchor={filterMenuAnchor}
+                  selectedFilter={selectedFilter}
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                  isLoadingComments={isLoadingComments}
+                  musicDetails={songDetail?.avaliacao}
+                  handleReview={handleSubmitReview}
+                />
+              </Grid>
             </Grid>
-
-            <Grid item xs={12}>
-              <CommentsSection
-                // classes={classes}
-                handleFilterMenuOpen={handleFilterMenuOpen}
-                handleFilterMenuClose={handleFilterMenuClose}
-                filterMenuAnchor={filterMenuAnchor}
-                selectedFilter={selectedFilter}
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                isLoadingComments={isLoadingComments}
-                musicDetails={songDetail?.avaliacao}
-                handleReview={handleSubmitReview}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog>
-      <AddToPlaylistModal musicid={songId ?? ''} isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
-    </>
-  );
+          </DialogContent>
+        </Dialog>
+        <AddToPlaylistModal musicid={songId ?? ''} isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
+      </>
+    );
+  return <></>;
 };

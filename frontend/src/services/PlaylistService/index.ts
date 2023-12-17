@@ -1,6 +1,16 @@
 import { HttpService } from '../config';
 type TPagPlaylist = { NumPag: number; NumElements: number; data: any };
 
+type TFullPlaylist = {
+  dono: string;
+  donoid: string;
+  id: string;
+  image: string;
+  musics: TPagPlaylist;
+  name: string;
+  descricao: string;
+};
+
 const getPlaylists = async ({
   page,
   contain,
@@ -30,9 +40,10 @@ const getPlaylists = async ({
   return data;
 };
 const getPlaylistDetail = async (playlistid: string) => {
-  const { data } = await HttpService.get<TPagPlaylist>('/playlist', {
+  const { data } = await HttpService.get<TFullPlaylist>('/playlist', {
     params: {
       playlistid,
+      limit: 9999999,
     },
   });
 
@@ -58,6 +69,13 @@ const deletePlaylist = async (id: string) => {
   return data;
 };
 
+const removeSong = async (userid: string, playlistid: string, musicid: string) => {
+  const { data } = await HttpService.delete('/playlist/remove-song', {
+    data: { userid, playlistid, musicid },
+  });
+  return data;
+};
+
 const addSong = async (userid: string, playlistid: string, musicid: string) => {
   const { data } = await HttpService.post('/playlist/add-song', {
     userid,
@@ -73,4 +91,5 @@ export const PlaylistService = {
   createPlaylist,
   deletePlaylist,
   addSong,
+  removeSong,
 };

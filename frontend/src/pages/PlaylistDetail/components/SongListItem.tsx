@@ -3,12 +3,15 @@ import { Box, Grid, IconButton, Menu, MenuItem, Typography } from '@mui/material
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TCard } from '@/components/CardList/CardList';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 
 const SongListItem = ({
   song,
   onRemove,
   onClick,
+  isOwner,
 }: {
+  isOwner: boolean;
   song: TCard;
   onRemove: (id: string) => void;
   onClick: (id: string) => void;
@@ -20,15 +23,18 @@ const SongListItem = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (e: any) => {
+    e.stopPropagation();
     setAnchorEl(null);
   };
 
   const handleRemoveClick = (e: any) => {
     e.stopPropagation();
     onRemove(song.id);
-    handleMenuClose();
+    setAnchorEl(null);
   };
+
+  console.log(song);
 
   return (
     <Box
@@ -41,7 +47,13 @@ const SongListItem = ({
     >
       <Grid container alignItems="center" spacing={2} sx={{ padding: '16px' }}>
         <Grid item xs={1}>
-          <img src={song.imgUrl} alt="Album Cover" style={{ height: '35px', width: '35px', borderRadius: '4px' }} />
+          {song.imgUrl ? (
+            <img src={song.imgUrl} alt="Album Cover" style={{ height: '35px', width: '35px', borderRadius: '4px' }} />
+          ) : (
+            <Box style={{ height: '35px', width: '35px', borderRadius: '4px' }}>
+              <AudiotrackIcon fontSize="large" />
+            </Box>
+          )}
         </Grid>
         <Grid item xs={8}>
           <Typography variant="body1">{song.title}</Typography>
@@ -49,17 +61,19 @@ const SongListItem = ({
             {song.label}
           </Typography>
         </Grid>
-        <Grid item xs={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <IconButton onClick={handleMoreOptionsClick}>
-            <MoreVertIcon />
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={handleRemoveClick}>
-              <DeleteIcon />
-              Remover da Playlist
-            </MenuItem>
-          </Menu>
-        </Grid>
+        {isOwner && (
+          <Grid item xs={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={handleMoreOptionsClick}>
+              <MoreVertIcon />
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+              <MenuItem onClick={handleRemoveClick}>
+                <DeleteIcon />
+                Remover da Playlist
+              </MenuItem>
+            </Menu>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );
