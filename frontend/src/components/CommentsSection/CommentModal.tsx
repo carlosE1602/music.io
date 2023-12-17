@@ -38,6 +38,7 @@ export const CommentModal = ({
       if (isOk) onClose();
       console.log(isOk);
       setIsLoading(false);
+      setRating(0);
     }
   };
 

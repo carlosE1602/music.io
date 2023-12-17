@@ -34,38 +34,39 @@ module.exports = {
 	},
 
     async list(request, response) {
-        const { id_music } = request.params;
-    
-        const page = request.query.page != undefined ? request.query.page : 1;
-        const limit = request.query.limit != undefined ? request.query.limit : 10;
-    
+        const { id } = request.params;
 
-		const startIndex = (page - 1) * limit;
+        console.log(request?.params);
+
+        const page = request.query.page !== undefined ? parseInt(request.query.page) : 1;
+        const limit = request.query.limit !== undefined ? parseInt(request.query.limit) : 10;
+
+        const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
-        
+        try {
+            if (id != null) {
+                const avaliacoes = await connection("avaliacao")
+                    .join("users", "users.id", "avaliacao.writer")
+                    .where("avaliadoid", id)
+                    .select("avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador");
+                console.log(avaliacoes)
+                const result = {
+                    NumPag: Math.ceil(avaliacoes.length / limit),
+                    NumElements: avaliacoes.length,
+                    data: avaliacoes.slice(startIndex, endIndex),
+                };
 
-        if (id_music != null){
-            const avaliacoes = await connection("avaliacao")
-			.where("avaliadoid", id_music)
-            .select("*");
-		    const result = {
-                NumPag: Math.ceil(avaliacoes.length / limit),
-                NumElements: avaliacoes.length,
-                data: avaliacoes.slice(startIndex, endIndex),
-            };
-            return response.json(result);
-    
-        }
-		const avaliacoes = await connection("avaliacao")
-			.select("*");
-            const result = {
-                NumPag: Math.ceil(avaliacoes.length / limit),
-                NumElements: avaliacoes.length,
-                data: avaliacoes.slice(startIndex, endIndex),
-            };
-            return response.json(result);    
+                return response.json(result);
+            } else {
+                return response.status(400).json({ error: 'Invalid id parameter' });
+            }
+        } catch (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Internal Server Error' });
+        }  
 	},
+
 
     async delete(request, response) {
 		const { id } = request.body;

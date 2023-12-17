@@ -16,6 +16,7 @@ import { PlaylistService } from '@/services/PlaylistService';
 import { aproximarTempo } from '@/utils/format';
 import Store from '@/store';
 import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import { ReviewService } from '@/services/ReviewService';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -79,10 +80,29 @@ export const PlaylistDetail = () => {
   const [songs, setSongs] = useState<TCard[]>([]);
 
   const [inputValue, setInputValue] = useState<string>('');
-  const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
   const [playlistDetail, setPlaylistDetail] = useState<any>();
+  const [comments, setComments] = useState<any[]>();
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>();
+
+  const fetchComments = async (page: number) => {
+    if (!id) return;
+    setIsLoadingComments(true);
+    try {
+      const response = await ReviewService.listReview(id, page);
+      setComments((prev) => {
+        if (prev && page != 1) return [...prev, ...response.data];
+        else return response.data;
+      });
+      setTotalPages(response.NumPag);
+    } catch (err) {
+      enqueueSnackbar('Erro ao carregar comentarios');
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
 
   const fetch = async () => {
     try {
@@ -120,15 +140,8 @@ export const PlaylistDetail = () => {
     }
   };
 
-  const handleFilterMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setFilterMenuAnchor(event.currentTarget);
-  };
-
-  const handleFilterMenuClose = (option: 'POPULAR' | 'RECENT') => {
-    setFilterMenuAnchor(null);
-    setSelectedFilter(option);
-  };
   const handleTabChange = (event: any, newTab: string) => {
+    if (newTab === 'comments') fetchComments(1);
     setActiveTab(newTab);
   };
 
@@ -175,10 +188,30 @@ export const PlaylistDetail = () => {
     if (!id) return;
 
     fetch();
+    setCurrentPage(1);
   }, [id]);
 
-  console.log(playlistDetail?.description);
+  const handleSubmitReview = async (rating: number | null, commentText: string) => {
+    if (!userId) return false;
+    console.log(rating, commentText);
 
+    try {
+      const data = await ReviewService.createReview(userId, id ?? '', rating ?? 0, commentText);
+      fetchComments(1);
+      setCurrentPage(1);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const handleGetMore = () => {
+    fetchComments(currentPage + 1);
+    setCurrentPage((prev) => prev + 1);
+  };
+
+  console.log(totalPages, currentPage);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header showSearchBar={false} hideGenreFilter={true} />
@@ -280,16 +313,13 @@ export const PlaylistDetail = () => {
           {activeTab === 'comments' && (
             <Grid container>
               <CommentsSection
-                // classes={classes}
-                handleFilterMenuOpen={handleFilterMenuOpen}
-                handleFilterMenuClose={handleFilterMenuClose}
-                filterMenuAnchor={filterMenuAnchor}
-                selectedFilter={selectedFilter}
                 inputValue={inputValue}
                 setInputValue={setInputValue}
-                // handleClose={handleClose}
-                isLoadingComments={false}
-                musicDetails={null}
+                handleReview={handleSubmitReview}
+                isLoadingComments={isLoadingComments}
+                comments={comments}
+                handleGetMore={handleGetMore}
+                showMoreComments={!!totalPages ? totalPages > currentPage : false}
               />
             </Grid>
           )}

@@ -59,18 +59,9 @@ const useStyles = makeStyles((theme: any) => ({
 }));
 
 export const CommentsSection = (props: any) => {
-  const {
-    handleFilterMenuOpen,
-    handleFilterMenuClose,
-    filterMenuAnchor,
-    selectedFilter,
-    inputValue,
-    setInputValue,
-    isLoadingComments,
-    musicDetails,
-    handleReview,
-  } = props;
-  console.log(musicDetails);
+  const { handleGetMore, inputValue, setInputValue, isLoadingComments, comments, handleReview, showMoreComments } =
+    props;
+  console.log(comments);
   const classes = useStyles();
   const [isModalOpen, setModalOpen] = useState(false);
   const handleCommentSubmit = () => {
@@ -84,7 +75,7 @@ export const CommentsSection = (props: any) => {
     setInputValue('');
   };
 
-  console.log(musicDetails);
+  console.log(comments);
 
   return (
     <Grid item xs={12} overflow="auto" width="100%">
@@ -126,8 +117,8 @@ export const CommentsSection = (props: any) => {
         </div>
 
         <div>
-          {!isLoadingComments && musicDetails?.data
-            ? musicDetails?.data?.map((comment: TComment, index: number) => (
+          {!isLoadingComments && comments
+            ? comments?.map((comment: TComment, index: number) => (
                 <div key={index} className={classes.comment}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -195,14 +186,14 @@ export const CommentsSection = (props: any) => {
                   </Box>
                 </div>
               ))}
-          {/* {!isLoadingComments && musicDetails?.NumElements > 0 && (
-            <div className={classes.moreComments} onClick={() => handleGetComments && handleGetComments()}>
+          {!isLoadingComments && comments.length > 0 && showMoreComments && (
+            <div className={classes.moreComments} onClick={() => handleGetMore && handleGetMore()}>
               <AddIcon />
               <Typography variant="body2">Carregar mais comentários</Typography>
             </div>
-          )} */}
+          )}
 
-          {!isLoadingComments && musicDetails?.NumElements === 0 && (
+          {!isLoadingComments && comments?.lenght === 0 && (
             <div>
               <Typography variant="body1">Não há comentários até o momento...</Typography>
             </div>
