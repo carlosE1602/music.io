@@ -348,7 +348,7 @@ export const PlaylistDetail = () => {
                   sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
                   variant="h5"
                 >
-                  Adicione músicas à sua playlist
+                  Não há músicas para essa playlist
                 </Typography>
               )}
             </Grid>
