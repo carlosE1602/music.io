@@ -51,16 +51,31 @@ module.exports = {
                     .where("avaliadoid", id)
                     .select("avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador");
                 console.log(avaliacoes)
+                let rating = 0
+                for (const element of avaliacoes){
+                    rating = rating + element["rating"]
+                    console.log(element)
+                }
+                rating/= avaliacoes.length
+                
+                const result = {
+                    rating,
+                    NumPag: Math.ceil(avaliacoes.length / limit),
+                    NumElements: avaliacoes.length,
+                    data: avaliacoes.slice(startIndex, endIndex)
+                };
+                return response.json(result);
+            } else {
+                const avaliacoes = await connection("avaliacao")
+                .select("*");
                 const result = {
                     NumPag: Math.ceil(avaliacoes.length / limit),
                     NumElements: avaliacoes.length,
                     data: avaliacoes.slice(startIndex, endIndex),
                 };
-
-                return response.json(result);
-            } else {
-                return response.status(400).json({ error: 'Invalid id parameter' });
+            return response.json(result);  
             }
+            
         } catch (error) {
             console.error(error);
             return response.status(500).json({ error: 'Internal Server Error' });
