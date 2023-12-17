@@ -94,6 +94,7 @@ export const SongModal = (props: TSongModalProps) => {
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>();
+  const [review, setReview] = useState<number>(0);
 
   const userData = Store.getUser();
   const fetchSong = async (id: string, page = 1) => {
@@ -114,6 +115,7 @@ export const SongModal = (props: TSongModalProps) => {
         else return response.data;
       });
       setTotalPages(response.NumPag);
+      setReview(response?.rating ?? 0);
     } catch (err) {
       enqueueSnackbar('Erro ao carregar comentarios');
     } finally {
@@ -218,7 +220,7 @@ export const SongModal = (props: TSongModalProps) => {
                     </Typography>
                     <Rating
                       name="half-rating-read"
-                      defaultValue={+(songDetail?.rating?.toFixed(0) ?? 0)}
+                      value={+(review?.toFixed(0) ?? 0)}
                       precision={0.5}
                       size="small"
                       readOnly
@@ -258,7 +260,6 @@ export const SongModal = (props: TSongModalProps) => {
                 sx={{ padding: '0px' }}
                 onClick={() => {
                   setIsLoadingSong(true);
-                  handleClose();
                   setCurrentPage(1);
                   setComments([]);
                   setTotalPages(1);

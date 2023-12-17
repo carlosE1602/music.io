@@ -86,6 +86,7 @@ export const PlaylistDetail = () => {
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>();
+  const [review, setReview] = useState<number>(0);
 
   const fetchComments = async (page: number) => {
     if (!id) return;
@@ -96,7 +97,9 @@ export const PlaylistDetail = () => {
         if (prev && page != 1) return [...prev, ...response.data];
         else return response.data;
       });
+      console.log(response?.rating, response);
       setTotalPages(response.NumPag);
+      setReview(response?.rating);
     } catch (err) {
       enqueueSnackbar('Erro ao carregar comentarios');
     } finally {
@@ -104,9 +107,13 @@ export const PlaylistDetail = () => {
     }
   };
 
+  console.log({ review });
+
   const fetch = async () => {
     try {
       const data = await PlaylistService.getPlaylistDetail(id ?? '');
+      const response = await ReviewService.listReview(id ?? '', 1);
+
       console.log(data.musics);
       setSongs(
         data?.musics?.data?.map(
@@ -119,6 +126,7 @@ export const PlaylistDetail = () => {
             }) as TCard,
         ) ?? [],
       );
+      setReview(response?.rating);
 
       const duration = data?.musics?.data?.reduce((acc: number, elem: any) => {
         console.log(acc, elem);
@@ -164,8 +172,16 @@ export const PlaylistDetail = () => {
     handleMenuClose();
   };
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = async () => {
+    if (!id) return;
     // Lógica para excluir a playlist
+    try {
+      await PlaylistService.deletePlaylist(id);
+      enqueueSnackbar('Playlist deletada com sucesso');
+      location.assign('/my-playlists');
+    } catch {
+      enqueueSnackbar('Erro ao deletar');
+    }
     handleMenuClose();
   };
 
@@ -211,7 +227,7 @@ export const PlaylistDetail = () => {
     setCurrentPage((prev) => prev + 1);
   };
 
-  console.log(totalPages, currentPage);
+  console.log(review);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header showSearchBar={false} hideGenreFilter={true} />
@@ -250,7 +266,7 @@ export const PlaylistDetail = () => {
               </Typography>
               <Rating
                 name="half-rating-read"
-                defaultValue={playlistDetail?.rating}
+                value={review}
                 precision={0.5}
                 size="small"
                 readOnly
@@ -273,9 +289,9 @@ export const PlaylistDetail = () => {
                   <Button variant="outlined" onClick={() => location.assign('/')}>
                     Adicionar Músicas
                   </Button>
-                  <Button variant="outlined" onClick={handleEditClick}>
+                  {/* <Button variant="outlined" onClick={handleEditClick}>
                     Editar
-                  </Button>
+                  </Button> */}
 
                   {/* Ícone de três pontinhos para mais opções */}
                   <IconButton className={classes.moreOptionsButton} onClick={handleMoreOptionsClick}>
