@@ -61,7 +61,6 @@ const useStyles = makeStyles((theme: any) => ({
 export const CommentsSection = (props: any) => {
   const { handleGetMore, inputValue, setInputValue, isLoadingComments, comments, handleReview, showMoreComments } =
     props;
-  console.log(comments);
   const classes = useStyles();
   const [isModalOpen, setModalOpen] = useState(false);
   const handleCommentSubmit = () => {
@@ -74,8 +73,6 @@ export const CommentsSection = (props: any) => {
     setModalOpen(false);
     setInputValue('');
   };
-
-  console.log(comments);
 
   return (
     <Grid item xs={12} overflow="auto" width="100%">

@@ -97,7 +97,6 @@ export const PlaylistDetail = () => {
         if (prev && page != 1) return [...prev, ...response.data];
         else return response.data;
       });
-      console.log(response?.rating, response);
       setTotalPages(response.NumPag);
       setReview(response?.rating);
     } catch (err) {
@@ -107,14 +106,11 @@ export const PlaylistDetail = () => {
     }
   };
 
-  console.log({ review });
-
   const fetch = async () => {
     try {
       const data = await PlaylistService.getPlaylistDetail(id ?? '');
       const response = await ReviewService.listReview(id ?? '', 1);
 
-      console.log(data.musics);
       setSongs(
         data?.musics?.data?.map(
           (elem: any) =>
@@ -129,10 +125,8 @@ export const PlaylistDetail = () => {
       setReview(response?.rating);
 
       const duration = data?.musics?.data?.reduce((acc: number, elem: any) => {
-        console.log(acc, elem);
         return elem.duration + acc;
       }, 0);
-      console.log(data);
       if (data)
         setPlaylistDetail({
           name: data.name,
@@ -196,7 +190,6 @@ export const PlaylistDetail = () => {
   };
 
   const handleClickSong = (id: string) => {
-    console.log('eeueueu', id);
     setSelectedSong(songs.find((elem) => elem.id === id));
   };
 
@@ -209,7 +202,6 @@ export const PlaylistDetail = () => {
 
   const handleSubmitReview = async (rating: number | null, commentText: string) => {
     if (!userId) return false;
-    console.log(rating, commentText);
 
     try {
       const data = await ReviewService.createReview(userId, id ?? '', rating ?? 0, commentText);
@@ -227,7 +219,6 @@ export const PlaylistDetail = () => {
     setCurrentPage((prev) => prev + 1);
   };
 
-  console.log(review);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header showSearchBar={false} hideGenreFilter={true} />

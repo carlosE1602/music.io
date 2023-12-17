@@ -13,7 +13,6 @@ export function segundosParaMinutos(ms: number | undefined | null) {
 }
 
 export function aproximarTempo(ms: number | undefined | null) {
-  console.log(ms);
   if (!ms && ms !== 0) return '-';
 
   const valorSegundos = ms / 1000;

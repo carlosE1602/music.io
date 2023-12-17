@@ -130,7 +130,6 @@ export const SongModal = (props: TSongModalProps) => {
 
   const handleSubmitReview = async (rating: number | null, commentText: string) => {
     if (!userData) return false;
-    console.log(rating, commentText);
 
     try {
       const data = await ReviewService.createReview(userData.id, songId ?? '', rating ?? 0, commentText);
@@ -150,8 +149,6 @@ export const SongModal = (props: TSongModalProps) => {
     fetchSong(songId);
     fetchComments(1);
   }, [songId]);
-
-  console.log(currentPage, totalPages);
 
   return (
     <>
