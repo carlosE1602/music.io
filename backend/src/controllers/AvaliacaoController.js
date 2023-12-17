@@ -43,16 +43,32 @@ module.exports = {
 		const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
+        console.log(id_music)
         
-
         if (id_music != null){
+            
+            
             const avaliacoes = await connection("avaliacao")
-			.where("avaliadoid", id_music)
-            .select("*");
-		    const result = {
+            .join('users', 'users.id', 'avaliacao.writer')
+            .where("avaliadoid", id_music)
+            .select(["avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador"])
+
+            if (avaliacoes == undefined) {
+                return response.status(409).json({ error: "Musica/playlist nao encontrada" });
+            }
+
+            let rating = 0
+            for (const element of avaliacoes){
+                rating = rating + element["rating"]
+                console.log(element)
+            }
+            rating/= avaliacoes.length
+            
+            const result = {
+                rating,
                 NumPag: Math.ceil(avaliacoes.length / limit),
                 NumElements: avaliacoes.length,
-                data: avaliacoes.slice(startIndex, endIndex),
+                data: avaliacoes.slice(startIndex, endIndex)
             };
             return response.json(result);
     
