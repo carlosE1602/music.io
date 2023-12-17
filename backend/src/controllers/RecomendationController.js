@@ -21,7 +21,6 @@ module.exports = {
         const contain = request.query.contain;
         const genre = request.query.genre;
 
-		console.log(genre)
 		const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 		const { id_user } = request.params;

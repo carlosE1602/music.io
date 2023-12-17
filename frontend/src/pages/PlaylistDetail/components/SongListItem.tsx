@@ -34,8 +34,6 @@ const SongListItem = ({
     setAnchorEl(null);
   };
 
-  console.log(song);
-
   return (
     <Box
       borderBottom="1px solid #999999"

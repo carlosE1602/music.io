@@ -23,6 +23,7 @@ import { SongService, TPagSongDetail } from '@/services/SongService';
 import { ReviewService } from '@/services/ReviewService';
 import Store from '@/store';
 import { segundosParaMinutos } from '@/utils/format';
+import { enqueueSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -86,47 +87,54 @@ export const SongModal = (props: TSongModalProps) => {
   const { isOpen, handleClose, songId } = props;
   const classes = useStyles();
   const [inputValue, setInputValue] = useState<string>('');
-  const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
   const [playListModal, setPlaylistModal] = useState<boolean>(false);
-  const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [songDetail, setSongDetail] = useState<TPagSongDetail>();
+  const [isLoadingSong, setIsLoadingSong] = useState(true);
+  const [comments, setComments] = useState<any[]>();
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>();
+  const [review, setReview] = useState<number>(0);
+
   const userData = Store.getUser();
   const fetchSong = async (id: string, page = 1) => {
-    console.log('eueueu');
-    setIsLoadingComments(true);
+    setIsLoadingSong(true);
 
     const data = await SongService.getSong(id, page);
-    console.log(data);
     setSongDetail(data);
-    setIsLoadingComments(false);
+    setIsLoadingSong(false);
   };
 
-  useEffect(() => {
-    console.log('entrando...');
-    // call music by id
+  const fetchComments = async (page: number) => {
     if (!songId) return;
-
-    fetchSong(songId);
-  }, [songId]);
-
-  const handleFilterMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setFilterMenuAnchor(event.currentTarget);
+    setIsLoadingComments(true);
+    try {
+      const response = await ReviewService.listReview(songId, page);
+      setComments((prev) => {
+        if (prev && page != 1) return [...prev, ...response.data];
+        else return response.data;
+      });
+      setTotalPages(response.NumPag);
+      setReview(response?.rating ?? 0);
+    } catch (err) {
+      enqueueSnackbar('Erro ao carregar comentarios');
+    } finally {
+      setIsLoadingComments(false);
+    }
   };
 
-  const handleFilterMenuClose = (option: 'POPULAR' | 'RECENT') => {
-    setFilterMenuAnchor(null);
-    setSelectedFilter(option);
+  const handleGetMore = () => {
+    fetchComments(currentPage + 1);
+    setCurrentPage((prev) => prev + 1);
   };
 
   const handleSubmitReview = async (rating: number | null, commentText: string) => {
     if (!userData) return false;
-    console.log(rating, commentText);
 
     try {
       const data = await ReviewService.createReview(userData.id, songId ?? '', rating ?? 0, commentText);
       fetchSong(songId ?? '');
+      fetchComments(1);
       return true;
     } catch (err) {
       console.error(err);
@@ -134,130 +142,148 @@ export const SongModal = (props: TSongModalProps) => {
     }
   };
 
-  if (songDetail)
-    return (
-      <>
-        <Dialog maxWidth="md" open={isOpen} onClose={handleClose}>
-          <DialogContent
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              padding: '20px',
-              borderRadius: '10px',
-              textAlign: 'justify',
-              // minWidth: '900px',
-              maxWidth: '800px',
-              minWidth: '800px',
+  useEffect(() => {
+    // call music by id
+    if (!songId) return;
 
-              // overflow: 'hidden',
-            }}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
-                {isLoadingComments ? (
-                  // Componente de esqueleto para simular o carregamento
-                  <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
-                ) : (
-                  // Quando não estiver carregando, exibe a imagem
-                  <img src={songDetail?.imageurl} alt="Album Cover" className={classes.albumImage} />
-                )}
-              </Grid>
-              <Grid item xs={12} md={9.5} className={classes.musicInfo}>
-                {isLoadingComments ? (
-                  // Componente de esqueleto para simular o carregamento
-                  <>
-                    <Skeleton variant="text" height={40} width={150} animation="wave" />
-                    <Skeleton variant="text" height={20} width={150} animation="wave" />
-                    <Skeleton variant="text" height={20} width={150} animation="wave" />
-                    <Skeleton variant="text" height={20} width={150} animation="wave" />
-                    <Skeleton variant="text" height={20} width={150} animation="wave" />
-                  </>
-                ) : (
-                  // Quando não estiver carregando, exibe as informações
-                  <>
-                    <Typography variant="h5" gutterBottom>
-                      {songDetail?.name}
-                    </Typography>
+    fetchSong(songId);
+    fetchComments(1);
+  }, [songId]);
+
+  return (
+    <>
+      <Dialog
+        maxWidth="md"
+        open={isOpen}
+        onClose={() => {
+          handleClose();
+          setCurrentPage(1);
+          setComments([]);
+          setTotalPages(1);
+          setSongDetail(undefined);
+          setIsLoadingSong(true);
+        }}
+      >
+        <DialogContent
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            padding: '20px',
+            borderRadius: '10px',
+            textAlign: 'justify',
+            // minWidth: '900px',
+            maxWidth: '800px',
+            minWidth: '800px',
+
+            // overflow: 'hidden',
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={2}>
+              {isLoadingSong ? (
+                // Componente de esqueleto para simular o carregamento
+                <Skeleton variant="rectangular" height={100} width={100} animation="wave" />
+              ) : (
+                // Quando não estiver carregando, exibe a imagem
+                <img src={songDetail?.imageurl} alt="Album Cover" className={classes.albumImage} />
+              )}
+            </Grid>
+            <Grid item xs={12} md={9.5} className={classes.musicInfo}>
+              {isLoadingSong ? (
+                // Componente de esqueleto para simular o carregamento
+                <>
+                  <Skeleton variant="text" height={40} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                  <Skeleton variant="text" height={20} width={150} animation="wave" />
+                </>
+              ) : (
+                // Quando não estiver carregando, exibe as informações
+                <>
+                  <Typography variant="h5" gutterBottom>
+                    {songDetail?.name}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    Álbum: {songDetail?.album}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    Duração: {segundosParaMinutos(songDetail?.duration ?? 0)}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                     <Typography variant="body1" color="textSecondary">
-                      Álbum: {songDetail?.album}
+                      Avaliação:
                     </Typography>
-                    <Typography variant="body1" color="textSecondary">
-                      Duração: {segundosParaMinutos(songDetail?.duration ?? 0)}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                      <Typography variant="body1" color="textSecondary">
-                        Avaliação:
-                      </Typography>
-                      <Rating
-                        name="half-rating-read"
-                        defaultValue={+(songDetail?.rating?.toFixed(0) ?? 0)}
-                        precision={0.5}
-                        size="small"
-                        readOnly
-                        sx={{
-                          '& .MuiRating-iconFilled': {
-                            color: '#ffF',
-                          },
-                          '& .MuiRating-iconHover': {
-                            color: '#999999',
-                          },
-                        }}
-                      />
-                    </Box>
-                  </>
-                )}
-                {isLoadingComments ? (
-                  // Componente de esqueleto para simular o carregamento
-                  <Skeleton variant="rectangular" height={40} animation="wave" />
-                ) : (
-                  // Quando não estiver carregando, exibe o botão de adicionar à playlist
-                  <Box
-                    sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                    onClick={() => {
-                      setPlaylistModal(true);
-                    }}
-                  >
-                    <AddToPlaylistIcon htmlColor="#999999" />
-                    <Typography variant="body1" color="textSecondary">
-                      Adicionar à playlist
-                    </Typography>
+                    <Rating
+                      name="half-rating-read"
+                      value={+(review?.toFixed(0) ?? 0)}
+                      precision={0.5}
+                      size="small"
+                      readOnly
+                      sx={{
+                        '& .MuiRating-iconFilled': {
+                          color: '#ffF',
+                        },
+                        '& .MuiRating-iconHover': {
+                          color: '#999999',
+                        },
+                      }}
+                    />
                   </Box>
-                )}
-              </Grid>
-
-              <Grid item xs={12} md={0.5} className={classes.musicInfo}>
-                <IconButton
-                  sx={{ padding: '0px' }}
+                </>
+              )}
+              {isLoadingSong ? (
+                // Componente de esqueleto para simular o carregamento
+                <Skeleton variant="rectangular" height={40} animation="wave" />
+              ) : (
+                // Quando não estiver carregando, exibe o botão de adicionar à playlist
+                <Box
+                  sx={{ display: 'flex', gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                   onClick={() => {
-                    setIsLoadingComments(true);
-                    setSongDetail(undefined);
-                    handleClose();
+                    setPlaylistModal(true);
                   }}
                 >
-                  <CloseIcon />
-                </IconButton>
-              </Grid>
-
-              <Grid item xs={12}>
-                <CommentsSection
-                  // classes={classes}
-                  handleFilterMenuOpen={handleFilterMenuOpen}
-                  handleFilterMenuClose={handleFilterMenuClose}
-                  filterMenuAnchor={filterMenuAnchor}
-                  selectedFilter={selectedFilter}
-                  inputValue={inputValue}
-                  setInputValue={setInputValue}
-                  isLoadingComments={isLoadingComments}
-                  musicDetails={songDetail?.avaliacao}
-                  handleReview={handleSubmitReview}
-                />
-              </Grid>
+                  <AddToPlaylistIcon htmlColor="#999999" />
+                  <Typography variant="body1" color="textSecondary">
+                    Adicionar à playlist
+                  </Typography>
+                </Box>
+              )}
             </Grid>
-          </DialogContent>
-        </Dialog>
-        <AddToPlaylistModal musicid={songId ?? ''} isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
-      </>
-    );
-  return <></>;
+
+            <Grid item xs={12} md={0.5} className={classes.musicInfo}>
+              <IconButton
+                sx={{ padding: '0px' }}
+                onClick={() => {
+                  setIsLoadingSong(true);
+                  setCurrentPage(1);
+                  setComments([]);
+                  setTotalPages(1);
+                  setSongDetail(undefined);
+                  handleClose();
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+
+            <Grid item xs={12}>
+              <CommentsSection
+                // classes={classes}
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                handleReview={handleSubmitReview}
+                isLoadingComments={isLoadingComments}
+                comments={comments}
+                handleGetMore={handleGetMore}
+                showMoreComments={!!totalPages ? totalPages > currentPage : false}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
+      <AddToPlaylistModal musicid={songId ?? ''} isOpen={playListModal} onClose={() => setPlaylistModal(false)} />
+    </>
+  );
 };

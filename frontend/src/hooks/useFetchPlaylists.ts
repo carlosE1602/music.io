@@ -14,7 +14,6 @@ export const useFetchPlaylists = (userId?: string | null) => {
     setIsLoading(true);
     try {
       const response = await PlaylistService.getPlaylists({ page: currentPage, contain: key, donoid: userId ?? '' });
-      console.log(response);
 
       setPageLimit(response.NumPag);
       setPlaylists(

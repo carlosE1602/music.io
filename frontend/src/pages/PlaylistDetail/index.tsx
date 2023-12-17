@@ -16,6 +16,7 @@ import { PlaylistService } from '@/services/PlaylistService';
 import { aproximarTempo } from '@/utils/format';
 import Store from '@/store';
 import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import { ReviewService } from '@/services/ReviewService';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -79,15 +80,37 @@ export const PlaylistDetail = () => {
   const [songs, setSongs] = useState<TCard[]>([]);
 
   const [inputValue, setInputValue] = useState<string>('');
-  const [filterMenuAnchor, setFilterMenuAnchor] = useState<null | HTMLElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState<'POPULAR' | 'RECENT'>('POPULAR');
   const [selectedSong, setSelectedSong] = useState<TCard | null>();
   const [playlistDetail, setPlaylistDetail] = useState<any>();
+  const [comments, setComments] = useState<any[]>();
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>();
+  const [review, setReview] = useState<number>(0);
+
+  const fetchComments = async (page: number) => {
+    if (!id) return;
+    setIsLoadingComments(true);
+    try {
+      const response = await ReviewService.listReview(id, page);
+      setComments((prev) => {
+        if (prev && page != 1) return [...prev, ...response.data];
+        else return response.data;
+      });
+      setTotalPages(response.NumPag);
+      setReview(response?.rating);
+    } catch (err) {
+      enqueueSnackbar('Erro ao carregar comentarios');
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
 
   const fetch = async () => {
     try {
       const data = await PlaylistService.getPlaylistDetail(id ?? '');
-      console.log(data.musics);
+      const response = await ReviewService.listReview(id ?? '', 1);
+
       setSongs(
         data?.musics?.data?.map(
           (elem: any) =>
@@ -99,12 +122,11 @@ export const PlaylistDetail = () => {
             }) as TCard,
         ) ?? [],
       );
+      setReview(response?.rating);
 
       const duration = data?.musics?.data?.reduce((acc: number, elem: any) => {
-        console.log(acc, elem);
         return elem.duration + acc;
       }, 0);
-      console.log(data);
       if (data)
         setPlaylistDetail({
           name: data.name,
@@ -120,15 +142,8 @@ export const PlaylistDetail = () => {
     }
   };
 
-  const handleFilterMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setFilterMenuAnchor(event.currentTarget);
-  };
-
-  const handleFilterMenuClose = (option: 'POPULAR' | 'RECENT') => {
-    setFilterMenuAnchor(null);
-    setSelectedFilter(option);
-  };
   const handleTabChange = (event: any, newTab: string) => {
+    if (newTab === 'comments') fetchComments(1);
     setActiveTab(newTab);
   };
 
@@ -151,8 +166,16 @@ export const PlaylistDetail = () => {
     handleMenuClose();
   };
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = async () => {
+    if (!id) return;
     // Lógica para excluir a playlist
+    try {
+      await PlaylistService.deletePlaylist(id);
+      enqueueSnackbar('Playlist deletada com sucesso');
+      location.assign('/my-playlists');
+    } catch {
+      enqueueSnackbar('Erro ao deletar');
+    }
     handleMenuClose();
   };
 
@@ -167,7 +190,6 @@ export const PlaylistDetail = () => {
   };
 
   const handleClickSong = (id: string) => {
-    console.log('eeueueu', id);
     setSelectedSong(songs.find((elem) => elem.id === id));
   };
 
@@ -175,9 +197,27 @@ export const PlaylistDetail = () => {
     if (!id) return;
 
     fetch();
+    setCurrentPage(1);
   }, [id]);
 
-  console.log(playlistDetail?.description);
+  const handleSubmitReview = async (rating: number | null, commentText: string) => {
+    if (!userId) return false;
+
+    try {
+      const data = await ReviewService.createReview(userId, id ?? '', rating ?? 0, commentText);
+      fetchComments(1);
+      setCurrentPage(1);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const handleGetMore = () => {
+    fetchComments(currentPage + 1);
+    setCurrentPage((prev) => prev + 1);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -217,7 +257,7 @@ export const PlaylistDetail = () => {
               </Typography>
               <Rating
                 name="half-rating-read"
-                defaultValue={playlistDetail?.rating}
+                value={review}
                 precision={0.5}
                 size="small"
                 readOnly
@@ -240,9 +280,9 @@ export const PlaylistDetail = () => {
                   <Button variant="outlined" onClick={() => location.assign('/')}>
                     Adicionar Músicas
                   </Button>
-                  <Button variant="outlined" onClick={handleEditClick}>
+                  {/* <Button variant="outlined" onClick={handleEditClick}>
                     Editar
-                  </Button>
+                  </Button> */}
 
                   {/* Ícone de três pontinhos para mais opções */}
                   <IconButton className={classes.moreOptionsButton} onClick={handleMoreOptionsClick}>
@@ -280,16 +320,13 @@ export const PlaylistDetail = () => {
           {activeTab === 'comments' && (
             <Grid container>
               <CommentsSection
-                // classes={classes}
-                handleFilterMenuOpen={handleFilterMenuOpen}
-                handleFilterMenuClose={handleFilterMenuClose}
-                filterMenuAnchor={filterMenuAnchor}
-                selectedFilter={selectedFilter}
                 inputValue={inputValue}
                 setInputValue={setInputValue}
-                // handleClose={handleClose}
-                isLoadingComments={false}
-                musicDetails={null}
+                handleReview={handleSubmitReview}
+                isLoadingComments={isLoadingComments}
+                comments={comments}
+                handleGetMore={handleGetMore}
+                showMoreComments={!!totalPages ? totalPages > currentPage : false}
               />
             </Grid>
           )}

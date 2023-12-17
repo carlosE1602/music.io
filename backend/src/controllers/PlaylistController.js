@@ -136,7 +136,6 @@ module.exports = {
 				await connection("playlist").where({ id: playlist.id }).update({ image: music["imageurl"] });
 			}
 		} catch(err){
-			console.log(err)
 		}
 
 		
@@ -155,9 +154,6 @@ module.exports = {
 	async deletemusic(request, response) {
 		const { userid, playlistid, musicid } = request.body;
 		
-		console.log(userid)
-		console.log(playlistid)
-		console.log(musicid)
 
 		if(!userid || !playlistid || !musicid) 
 		return response.status(400).json({ error: "Parâmetros inválidos" });

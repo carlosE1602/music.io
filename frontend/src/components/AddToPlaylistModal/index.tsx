@@ -40,7 +40,6 @@ export const AddToPlaylistModal = (props: TProps) => {
   };
 
   const onClick = async () => {
-    console.log(selectedPlaylist, userId, musicid);
     if (!userId || !musicid || !selectedPlaylist) return;
     try {
       await PlaylistService.addSong(userId ?? '', selectedPlaylist?.id ?? '', musicid);
@@ -55,7 +54,6 @@ export const AddToPlaylistModal = (props: TProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     if (!value) setSelectedPlaylist(undefined);
-    console.log(value);
     setInputValue(value);
     handleSearch(value);
   };

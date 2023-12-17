@@ -36,8 +36,8 @@ export const CommentModal = ({
     if (handleReview) {
       const isOk = handleReview(rating, commentText);
       if (isOk) onClose();
-      console.log(isOk);
       setIsLoading(false);
+      setRating(0);
     }
   };
 

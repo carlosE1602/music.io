@@ -53,7 +53,8 @@ routes.delete('/album', AlbumController.delete);
 //AVALIACAO
 routes.post('/avaliacao', AvaliacaoController.create);
 routes.get('/avaliacao', AvaliacaoController.list);
-routes.get('/avaliacao/:id_music', AvaliacaoController.list);
+routes.get('/avaliacao/:id', AvaliacaoController.list);
+
 routes.delete('/avaliacao', AvaliacaoController.delete);
 
 

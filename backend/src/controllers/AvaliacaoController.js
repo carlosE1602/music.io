@@ -34,54 +34,54 @@ module.exports = {
 	},
 
     async list(request, response) {
-        const { id_music } = request.params;
-    
-        const page = request.query.page != undefined ? request.query.page : 1;
-        const limit = request.query.limit != undefined ? request.query.limit : 10;
-    
+        const { id } = request.params;
 
-		const startIndex = (page - 1) * limit;
+        console.log(request?.params);
+
+        const page = request.query.page !== undefined ? parseInt(request.query.page) : 1;
+        const limit = request.query.limit !== undefined ? parseInt(request.query.limit) : 10;
+
+        const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
-        console.log(id_music)
-        
-        if (id_music != null){
-            
-            
-            const avaliacoes = await connection("avaliacao")
-            .join('users', 'users.id', 'avaliacao.writer')
-            .where("avaliadoid", id_music)
-            .select(["avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador"])
-
-            if (avaliacoes == undefined) {
-                return response.status(409).json({ error: "Musica/playlist nao encontrada" });
+        try {
+            if (id != null) {
+                const avaliacoes = await connection("avaliacao")
+                    .join("users", "users.id", "avaliacao.writer")
+                    .where("avaliadoid", id)
+                    .select("avaliacao.id", "avaliadoid", "t_date","comment", "rating","users.nickname as criador");
+                console.log(avaliacoes)
+                let rating = 0
+                for (const element of avaliacoes){
+                    rating = rating + element["rating"]
+                    console.log(element)
+                }
+                rating/= avaliacoes.length
+                
+                const result = {
+                    rating,
+                    NumPag: Math.ceil(avaliacoes.length / limit),
+                    NumElements: avaliacoes.length,
+                    data: avaliacoes.slice(startIndex, endIndex)
+                };
+                return response.json(result);
+            } else {
+                const avaliacoes = await connection("avaliacao")
+                .select("*");
+                const result = {
+                    NumPag: Math.ceil(avaliacoes.length / limit),
+                    NumElements: avaliacoes.length,
+                    data: avaliacoes.slice(startIndex, endIndex),
+                };
+            return response.json(result);  
             }
-
-            let rating = 0
-            for (const element of avaliacoes){
-                rating = rating + element["rating"]
-                console.log(element)
-            }
-            rating/= avaliacoes.length
             
-            const result = {
-                rating,
-                NumPag: Math.ceil(avaliacoes.length / limit),
-                NumElements: avaliacoes.length,
-                data: avaliacoes.slice(startIndex, endIndex)
-            };
-            return response.json(result);
-    
-        }
-		const avaliacoes = await connection("avaliacao")
-			.select("*");
-            const result = {
-                NumPag: Math.ceil(avaliacoes.length / limit),
-                NumElements: avaliacoes.length,
-                data: avaliacoes.slice(startIndex, endIndex),
-            };
-            return response.json(result);    
+        } catch (error) {
+            console.error(error);
+            return response.status(500).json({ error: 'Internal Server Error' });
+        }  
 	},
+
 
     async delete(request, response) {
 		const { id } = request.body;
