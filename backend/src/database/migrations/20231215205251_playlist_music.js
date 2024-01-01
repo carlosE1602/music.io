@@ -1,6 +1,6 @@
 exports.up = function (knex) {
 	return knex.schema.createTable("playlist_music", function (table) {
-		table.string("musicid").primary();
+		table.string("musicid").notNullable();
 		table.string("playlistid").notNullable();
     });
 };

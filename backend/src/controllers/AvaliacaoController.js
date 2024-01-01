@@ -36,8 +36,6 @@ module.exports = {
     async list(request, response) {
         const { id } = request.params;
 
-        console.log(request?.params);
-
         const page = request.query.page !== undefined ? parseInt(request.query.page) : 1;
         const limit = request.query.limit !== undefined ? parseInt(request.query.limit) : 10;
 
