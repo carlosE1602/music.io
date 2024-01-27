@@ -1,6 +1,6 @@
 # music.io - Full Stack Music Aggregator
 
-Welcome to music.io, a comprehensive full-stack project developed as part of the INF321 Web Programming course. This platform serves as an aggregator for music pulled from Spotify, allowing users to create and evaluate playlists, rate individual songs, and share playlists with others.
+A comprehensive full-stack project developed as part of the INF321 Web Programming course. This platform serves as an aggregator for music pulled from Spotify, allowing users to create and evaluate playlists, rate individual songs, and share playlists with others.
 
 ## Features
 
